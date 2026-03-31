@@ -1,0 +1,36 @@
+# ── Frontend (React/Vite) ────────────────────────────────────────────────────
+node_modules/
+dist/
+dist-ssr/
+*.local
+.eslintcache
+
+# ── Backend (Flask/Python) ───────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+
+
+# ── Data & Models (Heavy Files) ──────────────────────────────────────────────
+# We usually ignore .pkl and large .csv to keep the repo light
+# If you want to keep them in the repo, comment these out:
+
+
+# ── IDEs & Editors ──────────────────────────────────────────────────────────
+# Visual Studio
+.vs/
+[Bb]in/
+[Oo]bj/
+*.user
+*.suo
+*.sln.docstates
+
+# VS Code
+.vscode/
+.history/
+
+# OS Specific
+.DS_Store
+Thumbs.db
