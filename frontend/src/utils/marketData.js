@@ -1,5 +1,5 @@
-// This map ensures that when a farmer selects a district, 
-// we fetch data for the most relevant local hubs.
+// marketData.js — Real Agmarknet market names for Maharashtra districts
+
 export const DISTRICT_MARKET_MAP = {
     "Pune": [
         "Pune(Moshi) APMC",
@@ -28,18 +28,80 @@ export const DISTRICT_MARKET_MAP = {
         "Katol",
         "Saoner",
         "Ramtek"
-    ]
+    ],
+    "Kolhapur": [
+        "Kolhapur",
+        "Ichalkaranji",
+        "Gadhinglaj",
+        "Radhanagari",
+        "Kagal"
+    ],
+    "Solapur": [
+        "Solapur",
+        "Barshi",
+        "Pandharpur",
+        "Mangalvedhe",
+        "Mohol"
+    ],
+    "Aurangabad": [
+        "Aurangabad",
+        "Kannad",
+        "Vaijapur",
+        "Gangapur",
+        "Sillod"
+    ],
+    "Satara": [
+        "Satara",
+        "Karad",
+        "Wai",
+        "Phaltan",
+        "Rahimatpur"
+    ],
+    "Sangli": [
+        "Sangli",
+        "Miraj",
+        "Tasgaon",
+        "Vita",
+        "Islampur"
+    ],
+    "Thane": [
+        "Thane",
+        "Kalyan",
+        "Bhiwandi",
+        "Shahapur",
+        "Murbad"
+    ],
 };
 
-/**
- * Logic to determine if a farmer should SELL or KEEP based on 
- * the 5% threshold you defined.
- */
+export const CROPS = [
+    "Onion", "Tomato", "Potato", "Garlic",
+    "Wheat", "Maize", "Capsicum", "Brinjal"
+];
+
+export const DISTRICTS = Object.keys(DISTRICT_MARKET_MAP);
+
+// Recommendation logic (matches backend 5% threshold)
 export const calculateRecommendation = (currentPrice, forecast) => {
-    if (!currentPrice || !forecast || forecast.length === 0) return "UNKNOWN";
+    if (!currentPrice || !forecast || forecast.length === 0) return { signal: "UNKNOWN" };
 
-    const avgFuturePrice = forecast.reduce((acc, curr) => acc + curr.price, 0) / forecast.length;
-    const threshold = currentPrice * 1.05; // 5% profit margin logic
+    // Find the entry with the highest price
+    const peakEntry = forecast.reduce((prev, current) =>
+        (prev.price > current.price) ? prev : current
+    );
 
-    return avgFuturePrice > threshold ? "KEEP" : "SELL";
+    const gainPercent = ((peakEntry.price - currentPrice) / currentPrice) * 100;
+
+    if (gainPercent > 5) {
+        return {
+            signal: "KEEP",
+            bestDay: peakEntry.date,
+            price: peakEntry.price.toFixed(2)
+        };
+    }
+
+    return {
+        signal: "SELL",
+        bestDay: "Today",
+        price: currentPrice.toFixed(2)
+    };
 };
