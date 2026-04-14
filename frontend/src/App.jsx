@@ -2,7 +2,7 @@ import { useState } from "react";
 import LandingPage from "./LandingPage";
 import FarmerOnboarding from "./pages/FarmerOnboarding";
 import FarmerDashboard from "./pages/FarmerDashboard";
-//import CustomerDashboard from "./pages/CustomerDashboard"; // Assuming teammate uses this name
+import CustomerDashboard from "./pages/CustomerDashboard"; // Assuming teammate uses this name
 
 export default function App() {
     // Current View State: "landing" | "farmer" | "customer"
