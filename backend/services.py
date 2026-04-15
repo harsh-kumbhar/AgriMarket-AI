@@ -28,78 +28,52 @@ print(f"Model loaded. Training data ends: {model.history['ds'].max().date()}")
 
 # ── Layer 1: Live API Fetch ───────────────────────────────────────────────────
 def fetch_live_record(commodity, market):
-    """
-    Fetch from Agmarknet API.
-    KEY FIX: The state filter on this API is unreliable — it returns
-    whatever states uploaded data today. We fetch all records for the
-    commodity and filter Maharashtra client-side.
-    """
     try:
         url    = f"https://api.data.gov.in/resource/{RESOURCE_ID}"
         params = {
             "api-key":            API_KEY,
             "format":             "json",
-            "limit":              "500",    # fetch max — don't rely on state filter
+            "limit":              "500",
             "filters[commodity]": commodity,
         }
         resp = requests.get(url, params=params, headers=HEADERS, timeout=10)
 
         if resp.status_code != 200:
-            print(f"API error: {resp.status_code}")
             return None
 
         try:
             data = resp.json()
         except Exception:
-            print("API returned non-JSON response")
             return None
 
         all_records = data.get("records", [])
         if not all_records:
-            print(f"API returned 0 records for {commodity} today")
             return None
 
-        print(f"API: {len(all_records)} total records for {commodity}")
-
-        # Filter Maharashtra client-side
         maha = [r for r in all_records if "maharashtra" in r.get("state", "").lower()]
-        print(f"Maharashtra records today: {len(maha)}")
-
         if not maha:
-            print("No Maharashtra data today — govt hasn't uploaded yet, falling to CSV")
             return None
 
-        # Try specific market match first
         filtered = [r for r in maha if market.lower() in r["market"].lower()]
-
         if not filtered:
-            print(f"'{market}' not found — using closest Maharashtra market for bias")
-            filtered = maha  # any Maharashtra record is fine for bias correction
+            filtered = maha 
 
         rec          = filtered[0]
         actual_price = float(rec["modal_price"])
-        actual_date  = pd.to_datetime(rec["arrival_date"], dayfirst=True)
-
+        actual_date = pd.to_datetime(rec.get("arrival_date"), dayfirst=True, errors='coerce')
+        if pd.isna(actual_date):
+            print("⚠️ API sent a broken date. Defaulting to Today.")
+            actual_date = datetime.now()
         if actual_price < 100:
-            print(f"Suspicious price Rs.{actual_price} — rejecting")
             return None
 
-        print(f"Live: {rec['market']} | {actual_date.date()} | Rs.{actual_price}")
         return {"price": actual_price, "date": actual_date, "market": rec["market"]}
 
     except Exception as e:
-        print(f"Live API failed: {e}")
         return None
-
 
 # ── Layer 2: CSV Safe-Fail ────────────────────────────────────────────────────
 def _parse_agmarknet_csv(filepath):
-    """
-    Custom parser for Agmarknet market-wise daily report CSV.
-    Format: market names appear on their own line, commodities follow.
-      Market Name : Pune APMC
-      Onion,10,Metric Tonnes,...,950.0,...,Rs./Quintal
-    """
     rows = []
     current_market = None
     report_date = datetime.now()
@@ -137,58 +111,33 @@ def _parse_agmarknet_csv(filepath):
 
 
 def fetch_csv_record(commodity, market):
-    """
-    Safe-fail Layer 2 — parses Agmarknet market-wise daily report.
-    Download from agmarknet.gov.in → Price Arrivals → Market-wise Report
-    Save as latest_prices.csv in backend/
-    """
     try:
         if not os.path.exists(CSV_PATH):
-            print(f"CSV not found at {CSV_PATH}")
             return None
 
         rows = _parse_agmarknet_csv(CSV_PATH)
-        print(f"CSV parsed: {len(rows)} total records")
-
         if not rows:
-            print("CSV parsing returned 0 records")
             return None
 
-        # Filter by commodity
         filtered = [r for r in rows if commodity.lower() in r["commodity"].lower()]
-        print(f"CSV: {len(filtered)} {commodity} records")
-
         if not filtered:
-            print(f"No {commodity} in CSV")
             return None
 
-        # Try specific market match
         mkt_filtered = [r for r in filtered if market.lower() in r["market"].lower()]
         rec = mkt_filtered[0] if mkt_filtered else filtered[0]
 
-        if not mkt_filtered:
-            print(f"'{market}' not in CSV — using {rec['market']} for bias")
-
         price = rec["modal_price"]
         if price < 100:
-            print(f"CSV price Rs.{price} too low — rejecting")
             return None
 
-        print(f"CSV: Rs.{price}/quintal | {rec['market']} | {pd.Timestamp(rec['date']).date()}")
         return {"price": price, "date": rec["date"], "market": rec["market"]}
 
     except Exception as e:
-        print(f"CSV fallback failed: {e}")
         return None
 
 
 # ── Layer 3: Bias Correction + Prophet Forecast ───────────────────────────────
 def run_forecast(record):
-    """
-    Kaggle-proven bias correction:
-    bias = actual_price - model.predict(actual_date_from_record)
-    Then forecast next 7 days from today with bias applied.
-    """
     bias = 0.0
 
     if record is not None:
@@ -197,7 +146,6 @@ def run_forecast(record):
         model_at_actual = model.predict(pd.DataFrame({"ds": [actual_date]}))
         model_price     = float(model_at_actual["yhat"].values[0])
         bias            = actual_price - model_price
-        print(f"Bias: actual=Rs.{actual_price} | model=Rs.{model_price:.2f} | correction={bias:+.2f}")
 
     today        = datetime.now()
     future_dates = [today + timedelta(days=i) for i in range(1, 8)]
@@ -214,23 +162,61 @@ def run_forecast(record):
 
     return forecast_list
 
+# ── NEW: Retail Estimator & Consumer Insights ─────────────────────────────────
+def get_retail_markup(commodity):
+    """Returns the markup percentage based on perishability and transport"""
+    comm_lower = commodity.lower()
+    if comm_lower in ['onion', 'potato']:
+        return 0.35  # 35%
+    elif comm_lower in ['wheat', 'garlic']:
+        return 0.20  # 20%
+    elif comm_lower in ['tomato', 'brinjal', 'cabbage', 'cauliflower', 'green chilli']:
+        return 0.65  # 65% (High perishability)
+    else:
+        return 0.40  # 40% default
 
-# ── Recommendation Engine ─────────────────────────────────────────────────────
+def get_consumer_insight(current_retail_price, retail_forecast):
+    """Finds the lowest price in the week for the consumer"""
+    if not retail_forecast:
+        return {"signal": "UNKNOWN"}
+
+    # Consumer wants the LOWEST price
+    best_entry = min(retail_forecast, key=lambda x: x["retail_price_kg"])
+    best_price = best_entry["retail_price_kg"]
+    best_date = best_entry["date"]
+
+    drop_percent = ((current_retail_price - best_price) / current_retail_price) * 100
+
+    if drop_percent > 3 and best_date != retail_forecast[0]["date"]:
+        return {
+            "signal": "WAIT",
+            "best_day": best_date,
+            "target_price": round(best_price, 2),
+            "savings_percent": round(drop_percent, 1),
+            "message": f"Prices are expected to drop. Wait until {best_date} to buy."
+        }
+    
+    return {
+        "signal": "BUY",
+        "best_day": "Today",
+        "target_price": round(current_retail_price, 2),
+        "savings_percent": 0,
+        "message": "Market is at its weekly low. Good time to buy."
+    }
+
+
+# ── Recommendation Engine (For Farmers) ───────────────────────────────────────
 def get_recommendation(current_price, forecast):
     if current_price is None or not forecast:
         return {"signal": "UNKNOWN", "best_day": None, "profit_increase": 0}
 
-    # 1. Find the absolute peak in the 7-day forecast
-    # We find the day with the highest 'price'
+    # Farmer wants the HIGHEST price
     peak_entry = max(forecast, key=lambda x: x["price"])
     peak_price = peak_entry["price"]
     peak_date = peak_entry["date"]
 
-    # 2. Calculate the percentage gain if they wait for the peak
     gain_percent = ((peak_price - current_price) / current_price) * 100
 
-    # 3. Logic: If the peak is significantly higher (>5%) than today, 
-    # and the peak isn't 'today', tell them to KEEP.
     if gain_percent > 5 and peak_date != forecast[0]["date"]:
         return {
             "signal": "KEEP",
@@ -257,22 +243,37 @@ def get_forecast(commodity, market):
 
     if record is None:
         data_source = "model_only"
-        print("No real price found — model running without bias correction")
 
     try:
         forecast       = run_forecast(record)
         current_price  = record["price"] if record else forecast[0]["price"]
         recommendation = get_recommendation(current_price, forecast)
 
+        # Apply Retail Logic
+        markup = get_retail_markup(commodity)
+        current_retail_kg = (current_price * (1 + markup)) / 100
+
+        retail_forecast = []
+        for f in forecast:
+            retail_forecast.append({
+                "date": f["date"],
+                "mandi_price_q": f["price"],
+                "retail_price_kg": round((f["price"] * (1 + markup)) / 100, 2)
+            })
+            
+        consumer_insight = get_consumer_insight(current_retail_kg, retail_forecast)
+
         return {
             "status":         "success",
             "commodity":      commodity,
             "market":         record["market"] if record else market,
-            "current_price":  round(current_price, 2),
-            "price_per_kg":   round(current_price / 100, 2),
+            "current_mandi_price": round(current_price, 2),
+            "current_retail_price": round(current_retail_kg, 2),
+            "retail_markup_percent": round(markup * 100, 0),
             "data_source":    data_source,
             "recommendation": recommendation,
-            "forecast":       forecast,
+            "consumer_insight": consumer_insight,
+            "forecast":       retail_forecast,
             "generated_at":   datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         }
 

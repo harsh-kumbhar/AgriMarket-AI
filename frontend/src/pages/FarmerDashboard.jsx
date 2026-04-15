@@ -93,11 +93,10 @@ export default function FarmerDashboard({ userPrefs, onBack }) {
     const rec = mainData?.recommendation;
     const isKeep = rec?.signal === "KEEP";
 
+    // UPDATED: Mapping the "mandi_price_q" sent by the backend for the Farmer chart
     const chartData = (mainData?.forecast || []).map(d => ({
         date: new Date(d.date).toLocaleDateString("en-IN", { month: "short", day: "numeric" }),
-        price: +(d.price * px).toFixed(2),
-        lower: +(d.price_lower * px).toFixed(2),
-        upper: +(d.price_upper * px).toFixed(2),
+        price: +(d.mandi_price_q * px).toFixed(2), // Changed to mandi_price_q
     }));
 
     const minPrice = Math.min(...chartData.map(d => d.price));
@@ -108,7 +107,7 @@ export default function FarmerDashboard({ userPrefs, onBack }) {
     const allMarkets = [
         ...(mainData ? [{ ...mainData, isMain: true }] : []),
         ...nearbyData,
-    ].sort((a, b) => b.current_price - a.current_price);
+    ].sort((a, b) => b.current_mandi_price - a.current_mandi_price); // Changed to current_mandi_price
 
     const bestMarket = allMarkets[0];
 
@@ -126,7 +125,6 @@ export default function FarmerDashboard({ userPrefs, onBack }) {
             </nav>
 
             <div style={{ maxWidth: 1200, margin: "0 auto", padding: "40px 24px" }}>
-                {/* Top Row: Best Market Arbitrage Highlight */}
                 <div style={{ background: "linear-gradient(90deg, #1a3a2a, #2d6a4f)", borderRadius: 24, padding: "20px 32px", marginBottom: 24, display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "0 10px 30px rgba(26,58,42,0.15)" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
                         <span style={{ fontSize: 32 }}>🏪</span>
@@ -136,7 +134,7 @@ export default function FarmerDashboard({ userPrefs, onBack }) {
                         </div>
                     </div>
                     <div style={{ textAlign: "right" }}>
-                        <div style={{ fontSize: 24, fontWeight: 800, color: "#fff" }}>₹{(bestMarket?.current_price * px).toFixed(2)}<span style={{ fontSize: 14, opacity: 0.6 }}>{ul}</span></div>
+                        <div style={{ fontSize: 24, fontWeight: 800, color: "#fff" }}>₹{(bestMarket?.current_mandi_price * px).toFixed(2)}<span style={{ fontSize: 14, opacity: 0.6 }}>{ul}</span></div>
                     </div>
                 </div>
 
@@ -149,8 +147,8 @@ export default function FarmerDashboard({ userPrefs, onBack }) {
                         </div>
 
                         <div style={{ background: C.forest, borderRadius: 28, padding: "32px", color: "#fff", position: "relative", overflow: "hidden", boxShadow: "0 20px 40px rgba(26,58,42,0.2)" }}>
-                            <div style={{ fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.4)", textTransform: "uppercase", marginBottom: 8 }}>Live Rate</div>
-                            <div style={{ fontSize: 40, fontWeight: 800 }}>₹{(mainData?.current_price * px).toFixed(unit === "kg" ? 2 : 0)}<span style={{ fontSize: 16, color: "rgba(255,255,255,0.3)", marginLeft: 8 }}>/{unit}</span></div>
+                            <div style={{ fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.4)", textTransform: "uppercase", marginBottom: 8 }}>Live Mandi Rate</div>
+                            <div style={{ fontSize: 40, fontWeight: 800 }}>₹{(mainData?.current_mandi_price * px).toFixed(unit === "kg" ? 2 : 0)}<span style={{ fontSize: 16, color: "rgba(255,255,255,0.3)", marginLeft: 8 }}>/{unit}</span></div>
                             <div style={{ marginTop: 12, fontSize: 12, color: trend >= 0 ? C.mint : C.red, fontWeight: 700 }}>
                                 {trend >= 0 ? "📈" : "📉"} {trend >= 0 ? "+" : ""}{trend.toFixed(2)} trend this week
                             </div>
@@ -193,7 +191,7 @@ export default function FarmerDashboard({ userPrefs, onBack }) {
                         <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
                             <thead>
                                 <tr style={{ background: "#fafafa" }}>
-                                    {["Date", "Predicted Rate", "Price Range", "Market Signal"].map(h => (
+                                    {["Date", "Predicted Mandi Rate", "Market Signal"].map(h => (
                                         <th key={h} style={{ padding: "16px 24px", fontSize: 11, fontWeight: 700, color: "#999", textTransform: "uppercase" }}>{h}</th>
                                     ))}
                                 </tr>
@@ -205,7 +203,6 @@ export default function FarmerDashboard({ userPrefs, onBack }) {
                                         <tr key={i} style={{ borderTop: "1px solid #f8f8f8", background: isPeak ? "rgba(233,196,106,0.05)" : "#fff" }}>
                                             <td style={{ padding: "18px 24px" }}><div style={{ fontSize: 14, fontWeight: 700, color: C.forest }}>{row.date} {isPeak && "⭐"}</div></td>
                                             <td style={{ padding: "18px 24px" }}><div style={{ fontSize: 16, fontWeight: 700, color: C.charcoal }}>₹{row.price} <span style={{ fontSize: 12, color: '#ccc' }}>{ul}</span></div></td>
-                                            <td style={{ padding: "18px 24px" }}><div style={{ fontSize: 12, color: "#999" }}>₹{row.lower} - ₹{row.upper}</div></td>
                                             <td style={{ padding: "18px 24px" }}><span style={{ fontSize: 11, fontWeight: 700, padding: "6px 14px", borderRadius: 100, background: isPeak ? C.gold : "rgba(0,0,0,0.03)", color: isPeak ? C.forest : "#777" }}>{isPeak ? "PROFIT PEAK" : "STABLE"}</span></td>
                                         </tr>
                                     );

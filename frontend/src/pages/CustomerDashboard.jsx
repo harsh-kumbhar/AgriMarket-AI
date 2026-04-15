@@ -1,9 +1,9 @@
 import React, { useState, useCallback } from "react";
 import axios from "axios";
 import {
-  ArrowLeft, Search, Leaf, TrendingDown, TrendingUp, Minus,
-  Clock, Database, ShoppingCart, AlertCircle, Sparkles,
-  CalendarDays, BadgeIndianRupee, Zap, Heart, Gift, Cpu, BarChart2,
+    ArrowLeft, Search, Leaf, TrendingDown, TrendingUp, Minus,
+    Clock, Database, ShoppingCart, AlertCircle, Sparkles,
+    CalendarDays, BadgeIndianRupee, Zap, Heart, Gift, Cpu, BarChart2,
 } from "lucide-react";
 import PriceTrendChart from "../components/PriceTrendChart.jsx";
 // ─────────────────────────────────────────────────────────────────────────────
@@ -309,619 +309,587 @@ const css = `
 `;
 
 // ─────────────────────────────────────────────────────────────────────────────
-// FORECAST TAB — original data
+// FORECAST TAB 
 // ─────────────────────────────────────────────────────────────────────────────
 const MARKET_OPTIONS = [
-  { label: "Pune – Moshi APMC",    value: "Pune(Moshi) APMC" },
-  { label: "Pune – Manjri APMC",   value: "Pune(Manjri) APMC" },
-  { label: "Pune – Khed Chakan",   value: "Khed(Chakan) APMC" },
-  { label: "Pune – Khed APMC",     value: "Khed APMC" },
-  { label: "Pune APMC",            value: "Pune APMC" },
-  { label: "Nashik (Nasik) APMC",  value: "Nasik APMC" },
-  { label: "Lasalgaon APMC",       value: "Lasalgaon APMC" },
-  { label: "Pimpalgaon APMC",      value: "Pimpalgaon APMC" },
-  { label: "Mumbai APMC",          value: "Mumbai APMC" },
-  { label: "Vashi New Mumbai APMC",value: "Vashi New Mumbai APMC" },
-  { label: "Hingna APMC (Nagpur)", value: "Hingna APMC" },
-  { label: "Katol APMC (Nagpur)",  value: "Katol APMC" },
-  { label: "Kolhapur APMC",        value: "Kolhapur APMC" },
-  { label: "Islampur APMC",        value: "Islampur APMC" },
-  { label: "Karad APMC",           value: "Karad APMC" },
-  { label: "Satara APMC",          value: "Satara APMC" },
-  { label: "Solapur APMC",         value: "Solapur APMC" },
-  { label: "Jalgaon APMC",         value: "Jalgaon APMC" },
-  { label: "Bhusaval APMC",        value: "Bhusaval APMC" },
-  { label: "Akole APMC",           value: "Akole APMC" },
-  { label: "Rahuri APMC",          value: "Rahuri APMC" },
+    { label: "Pune – Moshi APMC", value: "Pune(Moshi) APMC" },
+    { label: "Pune – Manjri APMC", value: "Pune(Manjri) APMC" },
+    { label: "Pune – Khed Chakan", value: "Khed(Chakan) APMC" },
+    { label: "Pune – Khed APMC", value: "Khed APMC" },
+    { label: "Pune APMC", value: "Pune APMC" },
+    { label: "Nashik (Nasik) APMC", value: "Nasik APMC" },
+    { label: "Lasalgaon APMC", value: "Lasalgaon APMC" },
+    { label: "Pimpalgaon APMC", value: "Pimpalgaon APMC" },
+    { label: "Mumbai APMC", value: "Mumbai APMC" },
+    { label: "Vashi New Mumbai APMC", value: "Vashi New Mumbai APMC" },
+    { label: "Hingna APMC (Nagpur)", value: "Hingna APMC" },
+    { label: "Katol APMC (Nagpur)", value: "Katol APMC" },
+    { label: "Kolhapur APMC", value: "Kolhapur APMC" },
+    { label: "Islampur APMC", value: "Islampur APMC" },
+    { label: "Karad APMC", value: "Karad APMC" },
+    { label: "Satara APMC", value: "Satara APMC" },
+    { label: "Solapur APMC", value: "Solapur APMC" },
+    { label: "Jalgaon APMC", value: "Jalgaon APMC" },
+    { label: "Bhusaval APMC", value: "Bhusaval APMC" },
+    { label: "Akole APMC", value: "Akole APMC" },
+    { label: "Rahuri APMC", value: "Rahuri APMC" },
 ];
 
 const VEGETABLE_OPTIONS = [
-  { label: "Onion",          value: "Onion" },
-  { label: "Tomato",         value: "Tomato" },
-  { label: "Potato",         value: "Potato" },
-  { label: "Garlic",         value: "Garlic" },
-  { label: "Cabbage",        value: "Cabbage" },
-  { label: "Cauliflower",    value: "Cauliflower" },
-  { label: "Carrot",         value: "Carrot" },
-  { label: "Brinjal",        value: "Brinjal" },
-  { label: "Green Chilli",   value: "Green Chilli" },
-  { label: "Bitter Gourd",   value: "Bitter gourd" },
-  { label: "Wheat",          value: "Wheat" },
-  { label: "Ginger (Green)", value: "Ginger(Green)" },
+    { label: "Onion", value: "Onion" },
+    { label: "Tomato", value: "Tomato" },
+    { label: "Potato", value: "Potato" },
+    { label: "Garlic", value: "Garlic" },
+    { label: "Cabbage", value: "Cabbage" },
+    { label: "Cauliflower", value: "Cauliflower" },
+    { label: "Carrot", value: "Carrot" },
+    { label: "Brinjal", value: "Brinjal" },
+    { label: "Green Chilli", value: "Green Chilli" },
+    { label: "Bitter Gourd", value: "Bitter gourd" },
+    { label: "Wheat", value: "Wheat" },
+    { label: "Ginger (Green)", value: "Ginger(Green)" },
 ];
 
-const getBestBuy = (forecast) => {
-  if (!forecast?.length) return null;
-  let minIdx = 0;
-  forecast.forEach((d, i) => { if (d.price < forecast[minIdx].price) minIdx = i; });
-  return { ...forecast[minIdx], dayIndex: minIdx };
+const getBestBuy = (retailForecast) => {
+    if (!retailForecast?.length) return null;
+    let minIdx = 0;
+    retailForecast.forEach((d, i) => { if (d.retail_price_kg < retailForecast[minIdx].retail_price_kg) minIdx = i; });
+    return { ...retailForecast[minIdx], dayIndex: minIdx };
 };
 
+// BUG FIX: Handle the object structure sent by backend
 const getMood = (recommendation) => {
-  if (!recommendation) return "neutral";
-  const r = recommendation.toUpperCase();
-  if (r === "SELL") return "bearish";
-  if (r === "KEEP") return "bullish";
-  return "neutral";
+    if (!recommendation) return "neutral";
+
+    // Safe-check if it's the new object { signal: 'SELL' } or a plain string
+    const r = recommendation.signal ? recommendation.signal.toUpperCase() :
+        (typeof recommendation === 'string' ? recommendation.toUpperCase() : "NEUTRAL");
+
+    if (r === "SELL") return "bearish";
+    if (r === "KEEP") return "bullish";
+    return "neutral";
 };
 
-const moodLabel = { bearish: "Bearish Market 📉", bullish: "Bullish Market 📈", neutral: "Stable Market ➡️" };
+const moodLabel = { bearish: "Prices are High 📉", bullish: "Prices dropping 📈", neutral: "Stable Market ➡️" };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// INSIGHTS TAB — mock data  (swap with axios calls to your PHP API)
+// INSIGHTS TAB — mock data
 // ─────────────────────────────────────────────────────────────────────────────
-
-/* PHP/MySQL schema hint — create these tables and query against them:
-   vegetables(id, name, emoji, is_seasonal, season_note)
-   veg_prices(id, veg_id, price_date, price_kg, market)
-   orders(id, user_id, veg_id, quantity, price_paid, order_date)
-*/
 
 const SEASONAL = [
-  { emoji: "🥬", name: "Fenugreek (Methi)", note: "Peak harvest Apr–Jun", price: 28 },
-  { emoji: "🌿", name: "Coriander",         note: "Abundant this season",  price: 22 },
-  { emoji: "🥦", name: "Capsicum",           note: "Good yield this month", price: 60 },
-  { emoji: "🌶️", name: "Green Chilli",       note: "Locally sourced",       price: 35 },
-  { emoji: "🫘", name: "Cluster Beans",      note: "Low pesticide season",  price: 45 },
-  { emoji: "🥒", name: "Ridge Gourd",        note: "In season – buy now!",  price: 30 },
+    { emoji: "🥬", name: "Fenugreek (Methi)", note: "Peak harvest Apr–Jun", price: 28 },
+    { emoji: "🌿", name: "Coriander", note: "Abundant this season", price: 22 },
+    { emoji: "🥦", name: "Capsicum", note: "Good yield this month", price: 60 },
+    { emoji: "🌶️", name: "Green Chilli", note: "Locally sourced", price: 35 },
+    { emoji: "🫘", name: "Cluster Beans", note: "Low pesticide season", price: 45 },
+    { emoji: "🥒", name: "Ridge Gourd", note: "In season – buy now!", price: 30 },
 ];
 
 const MOST_BOUGHT = [
-  { emoji: "🧅", name: "Onion",   orders: 1420, price: 38 },
-  { emoji: "🍅", name: "Tomato",  orders: 1310, price: 55 },
-  { emoji: "🥔", name: "Potato",  orders: 1185, price: 30 },
-  { emoji: "🧄", name: "Garlic",  orders: 890,  price: 120 },
-  { emoji: "🥕", name: "Carrot",  orders: 760,  price: 48 },
-  { emoji: "🥬", name: "Cabbage", orders: 645,  price: 25 },
+    { emoji: "🧅", name: "Onion", orders: 1420, price: 38 },
+    { emoji: "🍅", name: "Tomato", orders: 1310, price: 55 },
+    { emoji: "🥔", name: "Potato", orders: 1185, price: 30 },
+    { emoji: "🧄", name: "Garlic", orders: 890, price: 120 },
+    { emoji: "🥕", name: "Carrot", orders: 760, price: 48 },
+    { emoji: "🥬", name: "Cabbage", orders: 645, price: 25 },
 ];
 
 const BEST_DEALS = [
-  { emoji: "🍅", name: "Tomato",      currPrice: 55, avgPrice: 90, drop: 39 },
-  { emoji: "🌿", name: "Coriander",   currPrice: 22, avgPrice: 38, drop: 42 },
-  { emoji: "🥦", name: "Capsicum",    currPrice: 60, avgPrice: 95, drop: 37 },
-  { emoji: "🥒", name: "Ridge Gourd", currPrice: 30, avgPrice: 48, drop: 38 },
+    { emoji: "🍅", name: "Tomato", currPrice: 55, avgPrice: 90, drop: 39 },
+    { emoji: "🌿", name: "Coriander", currPrice: 22, avgPrice: 38, drop: 42 },
+    { emoji: "🥦", name: "Capsicum", currPrice: 60, avgPrice: 95, drop: 37 },
+    { emoji: "🥒", name: "Ridge Gourd", currPrice: 30, avgPrice: 48, drop: 38 },
 ];
 
 const SUGGESTIONS = [
-  { emoji: "🥦", name: "Broccoli",     reason: "Pairs well with Capsicum",    price: 80 },
-  { emoji: "🧅", name: "Spring Onion", reason: "Often bought with Coriander", price: 20 },
-  { emoji: "🫛", name: "Peas",         reason: "Based on your Carrot orders", price: 65 },
-  { emoji: "🥬", name: "Spinach",      reason: "Nutritious combo with Methi", price: 18 },
+    { emoji: "🥦", name: "Broccoli", reason: "Pairs well with Capsicum", price: 80 },
+    { emoji: "🧅", name: "Spring Onion", reason: "Often bought with Coriander", price: 20 },
+    { emoji: "🫛", name: "Peas", reason: "Based on your Carrot orders", price: 65 },
+    { emoji: "🥬", name: "Spinach", reason: "Nutritious combo with Methi", price: 18 },
 ];
 
 const SMART_INSIGHTS = [
-  { label: "Onion Price Trend",  value: "↑ Rising",  dir: "up",   sub: "Up ~8% in last 7 days. Buy early." },
-  { label: "Tomato Forecast",    value: "↓ Falling", dir: "down", sub: "Down ~12%. Wait 2–3 days." },
-  { label: "Potato Demand",      value: "🔥 High",   dir: "up",   sub: "High demand near Mumbai this week." },
-  { label: "Coriander Demand",   value: "📊 Medium", dir: "flat", sub: "Stable demand; good supply." },
-  { label: "Garlic Prediction",  value: "↑ Rising",  dir: "up",   sub: "Festive season driving prices up." },
-  { label: "Capsicum Outlook",   value: "↓ Falling", dir: "down", sub: "Good harvest = lower prices ahead." },
+    { label: "Onion Price Trend", value: "↑ Rising", dir: "up", sub: "Up ~8% in last 7 days. Buy early." },
+    { label: "Tomato Forecast", value: "↓ Falling", dir: "down", sub: "Down ~12%. Wait 2–3 days." },
+    { label: "Potato Demand", value: "🔥 High", dir: "up", sub: "High demand near Mumbai this week." },
+    { label: "Coriander Demand", value: "📊 Medium", dir: "flat", sub: "Stable demand; good supply." },
+    { label: "Garlic Prediction", value: "↑ Rising", dir: "up", sub: "Festive season driving prices up." },
+    { label: "Capsicum Outlook", value: "↓ Falling", dir: "down", sub: "Good harvest = lower prices ahead." },
 ];
 
-// Price history generator (mock – replace with DB fetch)
 const genHistory = (base, vol, days) => {
-  let price = base;
-  return Array.from({ length: days + 1 }, (_, i) => {
-    const d = new Date(); d.setDate(d.getDate() - (days - i));
-    price = Math.max(10, price + (Math.random() - 0.47) * vol);
-    return { date: d.toLocaleDateString("en-IN", { day: "numeric", month: "short" }), price: +price.toFixed(1) };
-  });
+    let price = base;
+    return Array.from({ length: days + 1 }, (_, i) => {
+        const d = new Date(); d.setDate(d.getDate() - (days - i));
+        price = Math.max(10, price + (Math.random() - 0.47) * vol);
+        return { date: d.toLocaleDateString("en-IN", { day: "numeric", month: "short" }), price: +price.toFixed(1) };
+    });
 };
 
 const TREND_VEGS = [
-  { name: "Onion",  color: "#4ade80", d7: genHistory(40, 8, 7),  d30: genHistory(40, 8, 30) },
-  { name: "Tomato", color: "#f87171", d7: genHistory(58, 12, 7), d30: genHistory(58, 12, 30) },
-  { name: "Potato", color: "#fbbf24", d7: genHistory(32, 5, 7),  d30: genHistory(32, 5, 30) },
+    { name: "Onion", color: "#4ade80", d7: genHistory(40, 8, 7), d30: genHistory(40, 8, 30) },
+    { name: "Tomato", color: "#f87171", d7: genHistory(58, 12, 7), d30: genHistory(58, 12, 30) },
+    { name: "Potato", color: "#fbbf24", d7: genHistory(32, 5, 7), d30: genHistory(32, 5, 30) },
 ];
 
 const BASKET_POOL = [
-  { emoji: "🧅", name: "Onion",       pricePerKg: 38, minQty: 0.5 },
-  { emoji: "🍅", name: "Tomato",      pricePerKg: 55, minQty: 0.5 },
-  { emoji: "🥔", name: "Potato",      pricePerKg: 30, minQty: 0.5 },
-  { emoji: "🥕", name: "Carrot",      pricePerKg: 48, minQty: 0.25 },
-  { emoji: "🌿", name: "Coriander",   pricePerKg: 22, minQty: 0.1 },
-  { emoji: "🌶️", name: "Green Chilli",pricePerKg: 35, minQty: 0.1 },
-  { emoji: "🥬", name: "Cabbage",     pricePerKg: 25, minQty: 0.5 },
-  { emoji: "🥒", name: "Ridge Gourd", pricePerKg: 30, minQty: 0.25 },
+    { emoji: "🧅", name: "Onion", pricePerKg: 38, minQty: 0.5 },
+    { emoji: "🍅", name: "Tomato", pricePerKg: 55, minQty: 0.5 },
+    { emoji: "🥔", name: "Potato", pricePerKg: 30, minQty: 0.5 },
+    { emoji: "🥕", name: "Carrot", pricePerKg: 48, minQty: 0.25 },
+    { emoji: "🌿", name: "Coriander", pricePerKg: 22, minQty: 0.1 },
+    { emoji: "🌶️", name: "Green Chilli", pricePerKg: 35, minQty: 0.1 },
+    { emoji: "🥬", name: "Cabbage", pricePerKg: 25, minQty: 0.5 },
+    { emoji: "🥒", name: "Ridge Gourd", pricePerKg: 30, minQty: 0.25 },
 ];
 
 const generateBasket = (budgetRs) => {
-  const budget = parseFloat(budgetRs) || 100;
-  const items = [];
-  let rem = budget;
-  const pool = [...BASKET_POOL].sort(() => Math.random() - 0.5);
-  for (const item of pool) {
-    if (rem <= 5 || items.length >= 5) break;
-    const qty = Math.floor((rem / item.pricePerKg * 0.6) / item.minQty) * item.minQty;
-    if (qty <= 0) continue;
-    const cost = +(qty * item.pricePerKg).toFixed(1);
-    items.push({ ...item, qty, cost });
-    rem -= cost;
-  }
-  return { items, total: +items.reduce((s, i) => s + i.cost, 0).toFixed(1), saved: +rem.toFixed(1) };
+    const budget = parseFloat(budgetRs) || 100;
+    const items = [];
+    let rem = budget;
+    const pool = [...BASKET_POOL].sort(() => Math.random() - 0.5);
+    for (const item of pool) {
+        if (rem <= 5 || items.length >= 5) break;
+        const qty = Math.floor((rem / item.pricePerKg * 0.6) / item.minQty) * item.minQty;
+        if (qty <= 0) continue;
+        const cost = +(qty * item.pricePerKg).toFixed(1);
+        items.push({ ...item, qty, cost });
+        rem -= cost;
+    }
+    return { items, total: +items.reduce((s, i) => s + i.cost, 0).toFixed(1), saved: +rem.toFixed(1) };
 };
 
-// Pure-SVG mini line chart (no Chart.js dependency needed for this)
 const MiniSVGChart = ({ data, color = "#4ade80" }) => {
-  if (!data || data.length < 2) return null;
-  const prices = data.map(d => d.price);
-  const minP = Math.min(...prices), maxP = Math.max(...prices);
-  const range = maxP - minP || 1;
-  const W = 1000, H = 200;
-  const PAD = { t: 28, b: 34, l: 54, r: 24 };
-  const iw = W - PAD.l - PAD.r, ih = H - PAD.t - PAD.b;
-  const px = i => PAD.l + (i / (data.length - 1)) * iw;
-  const py = p => PAD.t + (1 - (p - minP) / range) * ih;
-  const pathD = data.map((d, i) => `${i === 0 ? "M" : "L"}${px(i).toFixed(1)},${py(d.price).toFixed(1)}`).join(" ");
-  const areaD = `${pathD} L${px(data.length-1)},${H-PAD.b} L${PAD.l},${H-PAD.b}Z`;
-  const lowIdx = prices.indexOf(minP);
-  const currP  = prices[prices.length - 1];
-  const step = Math.max(1, Math.ceil(data.length / 5));
-  const gid = `g${color.replace("#","")}`;
-  return (
-    <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", height: 200 }} xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id={gid} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%"   stopColor={color} stopOpacity="0.22"/>
-          <stop offset="100%" stopColor={color} stopOpacity="0"/>
-        </linearGradient>
-      </defs>
-      {[minP, minP + range * 0.5, maxP].map((t, i) => (
-        <g key={i}>
-          <line x1={PAD.l} y1={py(t)} x2={W-PAD.r} y2={py(t)} stroke="rgba(74,222,128,0.08)" strokeDasharray="4 4"/>
-          <text x={PAD.l-6} y={py(t)+4} textAnchor="end" fontSize="20" fill="rgba(240,253,244,0.35)" fontFamily="monospace">₹{t.toFixed(0)}</text>
-        </g>
-      ))}
-      <path d={areaD} fill={`url(#${gid})`}/>
-      <path d={pathD} fill="none" stroke={color} strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round"/>
-      <circle cx={px(lowIdx)} cy={py(minP)} r="6" fill="#060e0a" stroke="#4ade80" strokeWidth="2.5"/>
-      <text x={px(lowIdx)} y={py(minP)-12} textAnchor="middle" fontSize="18" fill="#4ade80" fontFamily="monospace" fontWeight="bold">₹{minP.toFixed(0)}</text>
-      <circle cx={px(data.length-1)} cy={py(currP)} r="6" fill="#060e0a" stroke={color} strokeWidth="2.5"/>
-      <text x={px(data.length-1)} y={py(currP)-12} textAnchor="middle" fontSize="18" fill={color} fontFamily="monospace" fontWeight="bold">₹{currP.toFixed(0)}</text>
-      {data.filter((_, i) => i % step === 0 || i === data.length-1).map((d, i, arr) => {
-        const origIdx = data.indexOf(d);
-        return <text key={i} x={px(origIdx)} y={H-6} textAnchor="middle" fontSize="19" fill="rgba(240,253,244,0.28)" fontFamily="sans-serif">{d.date}</text>;
-      })}
-    </svg>
-  );
+    if (!data || data.length < 2) return null;
+    const prices = data.map(d => d.price);
+    const minP = Math.min(...prices), maxP = Math.max(...prices);
+    const range = maxP - minP || 1;
+    const W = 1000, H = 200;
+    const PAD = { t: 28, b: 34, l: 54, r: 24 };
+    const iw = W - PAD.l - PAD.r, ih = H - PAD.t - PAD.b;
+    const px = i => PAD.l + (i / (data.length - 1)) * iw;
+    const py = p => PAD.t + (1 - (p - minP) / range) * ih;
+    const pathD = data.map((d, i) => `${i === 0 ? "M" : "L"}${px(i).toFixed(1)},${py(d.price).toFixed(1)}`).join(" ");
+    const areaD = `${pathD} L${px(data.length - 1)},${H - PAD.b} L${PAD.l},${H - PAD.b}Z`;
+    const lowIdx = prices.indexOf(minP);
+    const currP = prices[prices.length - 1];
+    const step = Math.max(1, Math.ceil(data.length / 5));
+    const gid = `g${color.replace("#", "")}`;
+    return (
+        <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", height: 200 }} xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <linearGradient id={gid} x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor={color} stopOpacity="0.22" />
+                    <stop offset="100%" stopColor={color} stopOpacity="0" />
+                </linearGradient>
+            </defs>
+            {[minP, minP + range * 0.5, maxP].map((t, i) => (
+                <g key={i}>
+                    <line x1={PAD.l} y1={py(t)} x2={W - PAD.r} y2={py(t)} stroke="rgba(74,222,128,0.08)" strokeDasharray="4 4" />
+                    <text x={PAD.l - 6} y={py(t) + 4} textAnchor="end" fontSize="20" fill="rgba(240,253,244,0.35)" fontFamily="monospace">₹{t.toFixed(0)}</text>
+                </g>
+            ))}
+            <path d={areaD} fill={`url(#${gid})`} />
+            <path d={pathD} fill="none" stroke={color} strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
+            <circle cx={px(lowIdx)} cy={py(minP)} r="6" fill="#060e0a" stroke="#4ade80" strokeWidth="2.5" />
+            <text x={px(lowIdx)} y={py(minP) - 12} textAnchor="middle" fontSize="18" fill="#4ade80" fontFamily="monospace" fontWeight="bold">₹{minP.toFixed(0)}</text>
+            <circle cx={px(data.length - 1)} cy={py(currP)} r="6" fill="#060e0a" stroke={color} strokeWidth="2.5" />
+            <text x={px(data.length - 1)} y={py(currP) - 12} textAnchor="middle" fontSize="18" fill={color} fontFamily="monospace" fontWeight="bold">₹{currP.toFixed(0)}</text>
+            {data.filter((_, i) => i % step === 0 || i === data.length - 1).map((d, i, arr) => {
+                const origIdx = data.indexOf(d);
+                return <text key={i} x={px(origIdx)} y={H - 6} textAnchor="middle" fontSize="19" fill="rgba(240,253,244,0.28)" fontFamily="sans-serif">{d.date}</text>;
+            })}
+        </svg>
+    );
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// INSIGHTS PANEL — rendered when activeTab === "insights"
-// ─────────────────────────────────────────────────────────────────────────────
 const InsightsPanel = () => {
-  const [trendIdx, setTrendIdx]   = useState(0);
-  const [period, setPeriod]       = useState("7");
-  const [budget, setBudget]       = useState("100");
-  const [basket, setBasket]       = useState(() => generateBasket(100));
+    const [trendIdx, setTrendIdx] = useState(0);
+    const [period, setPeriod] = useState("7");
+    const [budget, setBudget] = useState("100");
+    const [basket, setBasket] = useState(() => generateBasket(100));
 
-  const trendData = period === "7" ? TREND_VEGS[trendIdx].d7 : TREND_VEGS[trendIdx].d30;
-  const prices    = trendData.map(d => d.price);
-  const currPrice = prices[prices.length - 1];
-  const lowPrice  = Math.min(...prices);
+    const trendData = period === "7" ? TREND_VEGS[trendIdx].d7 : TREND_VEGS[trendIdx].d30;
+    const prices = trendData.map(d => d.price);
+    const currPrice = prices[prices.length - 1];
+    const lowPrice = Math.min(...prices);
 
-  return (
-    <div className="ins-root">
+    return (
+        <div className="ins-root">
 
-      {/* ── Section 1: Seasonal ───────────────────────── */}
-      <div className="ins-section-title"><Leaf size={13}/> 🌿 Seasonal Vegetables</div>
-      <div className="ins-grid ins-grid-3">
-        {SEASONAL.map((v, i) => (
-          <div className="ins-card" key={i}>
-            <div className="ins-card-icon">{v.emoji}</div>
-            <div>
-              <div className="ins-card-name">{v.name}</div>
-              <div className="ins-card-sub">{v.note}</div>
+            <div className="ins-section-title"><Leaf size={13} /> 🌿 Seasonal Vegetables</div>
+            <div className="ins-grid ins-grid-3">
+                {SEASONAL.map((v, i) => (
+                    <div className="ins-card" key={i}>
+                        <div className="ins-card-icon">{v.emoji}</div>
+                        <div>
+                            <div className="ins-card-name">{v.name}</div>
+                            <div className="ins-card-sub">{v.note}</div>
+                        </div>
+                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                            <div className="ins-card-price">₹{v.price}<span style={{ fontSize: 11, color: "var(--text-dim)", fontWeight: 400 }}>/kg</span></div>
+                            <span className="ins-badge seasonal">🌿 Seasonal</span>
+                        </div>
+                    </div>
+                ))}
             </div>
-            <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between" }}>
-              <div className="ins-card-price">₹{v.price}<span style={{fontSize:11,color:"var(--text-dim)",fontWeight:400}}>/kg</span></div>
-              <span className="ins-badge seasonal">🌿 Seasonal</span>
-            </div>
-          </div>
-        ))}
-      </div>
 
-      {/* ── Section 2: Price Trends ───────────────────── */}
-      <div className="ins-section-title"><TrendingUp size={13}/> 📈 Price Trends</div>
-      <div className="ins-chart-wrap">
-        <div className="ins-chart-header">
-          <div>
-            <div className="ins-chart-title">{TREND_VEGS[trendIdx].name} — Last {period} Days</div>
-            <div className="ins-veg-toggle" style={{marginTop:8}}>
-              {TREND_VEGS.map((v, i) => (
-                <button key={i} className={"ins-period-btn"+(trendIdx===i?" active":"")} onClick={()=>setTrendIdx(i)}>{v.name}</button>
-              ))}
+            <div className="ins-section-title"><TrendingUp size={13} /> 📈 Price Trends</div>
+            <div className="ins-chart-wrap">
+                <div className="ins-chart-header">
+                    <div>
+                        <div className="ins-chart-title">{TREND_VEGS[trendIdx].name} — Last {period} Days</div>
+                        <div className="ins-veg-toggle" style={{ marginTop: 8 }}>
+                            {TREND_VEGS.map((v, i) => (
+                                <button key={i} className={"ins-period-btn" + (trendIdx === i ? " active" : "")} onClick={() => setTrendIdx(i)}>{v.name}</button>
+                            ))}
+                        </div>
+                    </div>
+                    <div className="ins-period-toggle">
+                        <button className={"ins-period-btn" + (period === "7" ? " active" : "")} onClick={() => setPeriod("7")}>7D</button>
+                        <button className={"ins-period-btn" + (period === "30" ? " active" : "")} onClick={() => setPeriod("30")}>30D</button>
+                    </div>
+                </div>
+                <MiniSVGChart data={trendData} color={TREND_VEGS[trendIdx].color} />
+                <div className="ins-ph-row">
+                    <div className="ins-ph-item">
+                        <div className="ins-ph-label">Lowest in period</div>
+                        <div className="ins-ph-value low">₹{lowPrice.toFixed(1)}</div>
+                    </div>
+                    <div className="ins-ph-item">
+                        <div className="ins-ph-label">Current Price</div>
+                        <div className="ins-ph-value curr">₹{currPrice.toFixed(1)}</div>
+                    </div>
+                    <div className="ins-ph-item">
+                        <div className="ins-ph-label">Change from low</div>
+                        <div className="ins-ph-value" style={{ color: currPrice > lowPrice * 1.05 ? "var(--red)" : "var(--green-hi)" }}>
+                            {currPrice > lowPrice ? `+${((currPrice - lowPrice) / lowPrice * 100).toFixed(1)}%` : "At period low 🎉"}
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
-          <div className="ins-period-toggle">
-            <button className={"ins-period-btn"+(period==="7"?" active":"")} onClick={()=>setPeriod("7")}>7D</button>
-            <button className={"ins-period-btn"+(period==="30"?" active":"")} onClick={()=>setPeriod("30")}>30D</button>
-          </div>
+
+            <div className="ins-section-title"><Zap size={13} /> 💸 Best Deals Today</div>
+            <div className="ins-grid ins-grid-2">
+                {BEST_DEALS.map((v, i) => (
+                    <div className="ins-card" key={i}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                            <div className="ins-card-icon">{v.emoji}</div>
+                            <span className="ins-badge deal">💸 Lowest Price</span>
+                        </div>
+                        <div className="ins-card-name">{v.name}</div>
+                        <div style={{ display: "flex", gap: 10, alignItems: "baseline" }}>
+                            <div className="ins-card-price" style={{ color: "var(--amber)" }}>₹{v.currPrice}/kg</div>
+                            <div style={{ fontSize: 11, color: "var(--text-dim)", textDecoration: "line-through" }}>avg ₹{v.avgPrice}</div>
+                        </div>
+                        <div style={{ fontSize: 12, color: "var(--green-hi)", fontWeight: 600 }}>↓ {v.drop}% cheaper than avg</div>
+                    </div>
+                ))}
+            </div>
+
+            <div className="ins-section-title"><ShoppingCart size={13} /> 🔥 Most Bought This Month</div>
+            <div className="ins-grid ins-grid-3">
+                {MOST_BOUGHT.map((v, i) => (
+                    <div className="ins-card" key={i}>
+                        <div style={{ display: "flex", justifyContent: "space-between" }}>
+                            <div className="ins-card-icon">{v.emoji}</div>
+                            <span className="ins-badge trending">🔥 Trending</span>
+                        </div>
+                        <div className="ins-card-name">{v.name}</div>
+                        <div className="ins-card-sub">{v.orders.toLocaleString()} orders</div>
+                        <div className="ins-card-price">₹{v.price}<span style={{ fontSize: 11, fontWeight: 400, color: "var(--text-dim)" }}>/kg</span></div>
+                    </div>
+                ))}
+            </div>
+
+            <div className="ins-section-title"><Heart size={13} /> ✨ You May Also Like…</div>
+            <div className="ins-grid ins-grid-2">
+                {SUGGESTIONS.map((v, i) => (
+                    <div className="ins-card" key={i}>
+                        <div style={{ display: "flex", justifyContent: "space-between" }}>
+                            <div className="ins-card-icon">{v.emoji}</div>
+                            <span className="ins-badge suggest">💡 For You</span>
+                        </div>
+                        <div className="ins-card-name">{v.name}</div>
+                        <div className="ins-card-sub">{v.reason}</div>
+                        <div className="ins-card-price">₹{v.price}/kg</div>
+                    </div>
+                ))}
+            </div>
+
+            <div className="ins-section-title"><Gift size={13} /> 🧺 Budget Basket Generator</div>
+            <div className="ins-budget-wrap">
+                <div className="ins-budget-header">
+                    <div className="ins-budget-title">What can I buy in my budget?</div>
+                    <div className="ins-budget-row">
+                        <span style={{ color: "var(--text-dim)", fontSize: 14, fontWeight: 700 }}>₹</span>
+                        <input
+                            className="ins-budget-input" type="number" min={20} max={2000}
+                            value={budget} onChange={e => setBudget(e.target.value)}
+                        />
+                        <button className="ins-gen-btn" onClick={() => setBasket(generateBasket(budget))}>Generate 🎲</button>
+                    </div>
+                </div>
+                {basket.items.map((item, i) => (
+                    <div className="ins-basket-row" key={i}>
+                        <div className="ins-basket-left">
+                            <div className="ins-basket-icon">{item.emoji}</div>
+                            <div>
+                                <div className="ins-basket-name">{item.name}</div>
+                                <div className="ins-basket-qty">{item.qty} kg × ₹{item.pricePerKg}/kg</div>
+                            </div>
+                        </div>
+                        <div className="ins-basket-price">₹{item.cost}</div>
+                    </div>
+                ))}
+                <div className="ins-basket-total">
+                    <div>
+                        <div className="ins-basket-total-label">Total Cost</div>
+                        {basket.saved > 0 && <div className="ins-basket-saved">₹{basket.saved} change back 🎉</div>}
+                    </div>
+                    <div className="ins-basket-total-val">₹{basket.total}</div>
+                </div>
+            </div>
+
+            <div className="ins-section-title"><Cpu size={13} /> 🤖 Smart Price Insights</div>
+            <div className="ins-smart-grid">
+                {SMART_INSIGHTS.map((s, i) => (
+                    <div className="ins-smart-card" key={i}>
+                        <div className="ins-smart-label">{s.label}</div>
+                        <div className={"ins-smart-value " + s.dir}>{s.value}</div>
+                        <div className="ins-smart-sub">{s.sub}</div>
+                        <span className={`ins-badge ${s.dir === "up" ? "demand-hi" : s.dir === "down" ? "demand-lo" : "demand-md"}`} style={{ marginTop: 4, alignSelf: "flex-start" }}>
+                            {s.dir === "up" ? "📈 Rising Demand" : s.dir === "down" ? "📉 Easing" : "📊 Stable"}
+                        </span>
+                    </div>
+                ))}
+            </div>
+
         </div>
-        <MiniSVGChart data={trendData} color={TREND_VEGS[trendIdx].color}/>
-        <div className="ins-ph-row">
-          <div className="ins-ph-item">
-            <div className="ins-ph-label">Lowest in period</div>
-            <div className="ins-ph-value low">₹{lowPrice.toFixed(1)}</div>
-          </div>
-          <div className="ins-ph-item">
-            <div className="ins-ph-label">Current Price</div>
-            <div className="ins-ph-value curr">₹{currPrice.toFixed(1)}</div>
-          </div>
-          <div className="ins-ph-item">
-            <div className="ins-ph-label">Change from low</div>
-            <div className="ins-ph-value" style={{color: currPrice > lowPrice*1.05?"var(--red)":"var(--green-hi)"}}>
-              {currPrice > lowPrice ? `+${((currPrice-lowPrice)/lowPrice*100).toFixed(1)}%` : "At period low 🎉"}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* ── Section 3: Best Deals ─────────────────────── */}
-      <div className="ins-section-title"><Zap size={13}/> 💸 Best Deals Today</div>
-      <div className="ins-grid ins-grid-2">
-        {BEST_DEALS.map((v, i) => (
-          <div className="ins-card" key={i}>
-            <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
-              <div className="ins-card-icon">{v.emoji}</div>
-              <span className="ins-badge deal">💸 Lowest Price</span>
-            </div>
-            <div className="ins-card-name">{v.name}</div>
-            <div style={{display:"flex",gap:10,alignItems:"baseline"}}>
-              <div className="ins-card-price" style={{color:"var(--amber)"}}>₹{v.currPrice}/kg</div>
-              <div style={{fontSize:11,color:"var(--text-dim)",textDecoration:"line-through"}}>avg ₹{v.avgPrice}</div>
-            </div>
-            <div style={{fontSize:12,color:"var(--green-hi)",fontWeight:600}}>↓ {v.drop}% cheaper than avg</div>
-          </div>
-        ))}
-      </div>
-
-      {/* ── Section 4: Most Bought ────────────────────── */}
-<div className="ins-section-title"><ShoppingCart size={13}/> 🔥 Most Bought This Month</div>
-<div className="ins-grid ins-grid-3">
-  {MOST_BOUGHT.map((v, i) => (
-    <div className="ins-card" key={i}>
-      <div style={{display:"flex",justifyContent:"space-between"}}>
-        <div className="ins-card-icon">{v.emoji}</div>
-        <span className="ins-badge trending">🔥 Trending</span>
-      </div>
-      <div className="ins-card-name">{v.name}</div>
-      <div className="ins-card-sub">{v.orders.toLocaleString()} orders</div>
-      {/* FIXED LINE BELOW: Removed the stray '/' from the opening tag */}
-      <div className="ins-card-price">₹{v.price}<span style={{fontSize:11,fontWeight:400,color:"var(--text-dim)"}}>/kg</span></div>
-    </div>
-  ))}
-</div>
-
-      {/* ── Section 5: Suggestions ───────────────────── */}
-      <div className="ins-section-title"><Heart size={13}/> ✨ You May Also Like…</div>
-      <div className="ins-grid ins-grid-2">
-        {SUGGESTIONS.map((v, i) => (
-          <div className="ins-card" key={i}>
-            <div style={{display:"flex",justifyContent:"space-between"}}>
-              <div className="ins-card-icon">{v.emoji}</div>
-              <span className="ins-badge suggest">💡 For You</span>
-            </div>
-            <div className="ins-card-name">{v.name}</div>
-            <div className="ins-card-sub">{v.reason}</div>
-            <div className="ins-card-price">₹{v.price}/kg</div>
-          </div>
-        ))}
-      </div>
-
-      {/* ── Section 6: Budget Basket ─────────────────── */}
-      <div className="ins-section-title"><Gift size={13}/> 🧺 Budget Basket Generator</div>
-      <div className="ins-budget-wrap">
-        <div className="ins-budget-header">
-          <div className="ins-budget-title">What can I buy in my budget?</div>
-          <div className="ins-budget-row">
-            <span style={{color:"var(--text-dim)",fontSize:14,fontWeight:700}}>₹</span>
-            <input
-              className="ins-budget-input" type="number" min={20} max={2000}
-              value={budget} onChange={e => setBudget(e.target.value)}
-            />
-            <button className="ins-gen-btn" onClick={() => setBasket(generateBasket(budget))}>Generate 🎲</button>
-          </div>
-        </div>
-        {basket.items.map((item, i) => (
-          <div className="ins-basket-row" key={i}>
-            <div className="ins-basket-left">
-              <div className="ins-basket-icon">{item.emoji}</div>
-              <div>
-                <div className="ins-basket-name">{item.name}</div>
-                <div className="ins-basket-qty">{item.qty} kg × ₹{item.pricePerKg}/kg</div>
-              </div>
-            </div>
-            <div className="ins-basket-price">₹{item.cost}</div>
-          </div>
-        ))}
-        <div className="ins-basket-total">
-          <div>
-            <div className="ins-basket-total-label">Total Cost</div>
-            {basket.saved > 0 && <div className="ins-basket-saved">₹{basket.saved} change back 🎉</div>}
-          </div>
-          <div className="ins-basket-total-val">₹{basket.total}</div>
-        </div>
-      </div>
-
-      {/* ── Section 7: Smart Insights ────────────────── */}
-      <div className="ins-section-title"><Cpu size={13}/> 🤖 Smart Price Insights</div>
-      <div className="ins-smart-grid">
-        {SMART_INSIGHTS.map((s, i) => (
-          <div className="ins-smart-card" key={i}>
-            <div className="ins-smart-label">{s.label}</div>
-            <div className={"ins-smart-value "+s.dir}>{s.value}</div>
-            <div className="ins-smart-sub">{s.sub}</div>
-            <span className={`ins-badge ${s.dir==="up"?"demand-hi":s.dir==="down"?"demand-lo":"demand-md"}`} style={{marginTop:4,alignSelf:"flex-start"}}>
-              {s.dir==="up"?"📈 Rising Demand":s.dir==="down"?"📉 Easing":"📊 Stable"}
-            </span>
-          </div>
-        ))}
-      </div>
-
-    </div>
-  );
+    );
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
 // MAIN COMPONENT
 // ─────────────────────────────────────────────────────────────────────────────
 const CustomerDashboard = ({ onBack }) => {
-  // Forecast state (unchanged)
-  const [commodity, setCommodity] = useState("");
-  const [market,    setMarket]    = useState("");
-  const [forecastData, setForecastData] = useState(null);
-  const [loading, setLoading]     = useState(false);
-  const [error,   setError]       = useState(null);
+    const [commodity, setCommodity] = useState("");
+    const [market, setMarket] = useState("");
+    const [forecastData, setForecastData] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+    const [activeTab, setActiveTab] = useState("forecast");
 
-  // ── NEW: tab state ──────────────────────────────────────────────────────────
-  const [activeTab, setActiveTab] = useState("forecast"); // "forecast" | "insights"
+    const handleSearch = useCallback(async () => {
+        if (!commodity || !market) return;
+        setLoading(true);
+        setError(null);
+        setForecastData(null);
+        try {
+            const res = await axios.get(
+                `http://localhost:5000/forecast?commodity=${encodeURIComponent(commodity)}&market=${encodeURIComponent(market)}`
+            );
+            if (res.data.status !== "success") throw new Error(res.data.message || "No data returned.");
+            setForecastData(res.data);
+        } catch (err) {
+            if (err.code === "ERR_NETWORK" || err.message?.includes("Network Error")) {
+                setError("Cannot connect to the backend. Make sure Flask is running: cd backend && python app.py");
+            } else {
+                setError(err.response?.data?.message || err.message || "Could not fetch forecast. Try a different market or vegetable.");
+            }
+        } finally {
+            setLoading(false);
+        }
+    }, [commodity, market]);
 
-  const handleSearch = useCallback(async () => {
-    if (!commodity || !market) return;
-    setLoading(true);
-    setError(null);
-    setForecastData(null);
-    try {
-      const res = await axios.get(
-        `http://localhost:5000/forecast?commodity=${encodeURIComponent(commodity)}&market=${encodeURIComponent(market)}`
-      );
-      if (res.data.status !== "success") throw new Error(res.data.message || "No data returned.");
-      setForecastData(res.data);
-    } catch (err) {
-      if (err.code === "ERR_NETWORK" || err.message?.includes("Network Error")) {
-        setError("Cannot connect to the backend. Make sure Flask is running: cd backend && python app.py");
-      } else {
-        setError(err.response?.data?.message || err.message || "Could not fetch forecast. Try a different market or vegetable.");
-      }
-    } finally {
-      setLoading(false);
+    // Use the new RETAIL forecast data for the consumer's "Best Buy"
+    const bestBuy = forecastData ? getBestBuy(forecastData.forecast) : null;
+    const cInsight = forecastData?.consumer_insight;
+    const showWaitTip = cInsight?.signal === "WAIT";
+    const mood = getMood(forecastData?.recommendation);
+
+    let trendDir = "flat";
+    if (forecastData?.forecast?.length >= 2) {
+        const first = forecastData.forecast[0].retail_price_kg;
+        const last = forecastData.forecast[forecastData.forecast.length - 1].retail_price_kg;
+        trendDir = last > first * 1.02 ? "up" : last < first * 0.98 ? "down" : "flat";
     }
-  }, [commodity, market]);
 
-  const bestBuy     = forecastData ? getBestBuy(forecastData.forecast) : null;
-  const showEarlyTip = bestBuy && bestBuy.dayIndex <= 2;
-  const mood        = getMood(forecastData?.recommendation);
+    // To re-use your friend's Chart.js wrapper correctly, we pass the retail_price_kg
+    const chartData = forecastData?.forecast?.map(d => ({
+        date: d.date,
+        price: d.retail_price_kg
+    })) || [];
 
-  let trendDir = "flat";
-  if (forecastData?.forecast?.length >= 2) {
-    const first = forecastData.forecast[0].price;
-    const last  = forecastData.forecast[forecastData.forecast.length - 1].price;
-    trendDir = last > first * 1.02 ? "up" : last < first * 0.98 ? "down" : "flat";
-  }
+    return (
+        <>
+            <style>{css}</style>
+            <div className="cd-root">
 
-  return (
-    <>
-      <style>{css}</style>
-      <div className="cd-root">
+                <nav className="cd-nav">
+                    <button className="cd-back-btn" onClick={onBack}><ArrowLeft size={15} /> Back</button>
+                    <div className="cd-brand">
+                        <div className="cd-brand-dot" />
+                        <span className="cd-brand-label">Consumer Price Tracker</span>
+                    </div>
+                    <div className="cd-tab-nav">
+                        <button className={"cd-tab-btn" + (activeTab === "forecast" ? " active" : "")} onClick={() => setActiveTab("forecast")}>📊 Forecast</button>
+                        <button className={"cd-tab-btn" + (activeTab === "insights" ? " active" : "")} onClick={() => setActiveTab("insights")}>✨ Insights</button>
+                    </div>
+                    <div className="cd-badge"><Leaf size={12} /> AgriMarket AI</div>
+                </nav>
 
-        {/* ── NAV (extended with tab switcher) ─────────────────────────────── */}
-        <nav className="cd-nav">
-          <button className="cd-back-btn" onClick={onBack}><ArrowLeft size={15}/> Back</button>
+                {activeTab === "forecast" && (
+                    <>
+                        <div className="cd-hero">
+                            <div className="cd-eyebrow"><Sparkles size={12} /> Smart Price Forecasting</div>
+                            <h1>Know the best day<br />to buy <span>vegetables</span>.</h1>
+                            <p className="cd-hero-sub">Local shop prices are estimated using real-time Mandi markup logic.</p>
 
-          <div className="cd-brand">
-            <div className="cd-brand-dot"/>
-            <span className="cd-brand-label">Consumer Price Tracker</span>
-          </div>
-
-          {/* ── TAB NAV (NEW) ── */}
-          <div className="cd-tab-nav">
-            <button
-              className={"cd-tab-btn"+(activeTab==="forecast"?" active":"")}
-              onClick={()=>setActiveTab("forecast")}
-            >📊 Forecast</button>
-            <button
-              className={"cd-tab-btn"+(activeTab==="insights"?" active":"")}
-              onClick={()=>setActiveTab("insights")}
-            >✨ Insights</button>
-          </div>
-
-          <div className="cd-badge"><Leaf size={12}/> AgriMarket AI</div>
-        </nav>
-
-        {/* ── FORECAST TAB (original, unchanged) ───────────────────────────── */}
-        {activeTab === "forecast" && (
-          <>
-            <div className="cd-hero">
-              <div className="cd-eyebrow"><Sparkles size={12}/> Smart Price Forecasting</div>
-              <h1>Know the best day<br/>to buy <span>vegetables</span>.</h1>
-              <p className="cd-hero-sub">7-day AI price forecasts powered by mandi data — buy smarter, save more.</p>
-
-              <div className="cd-search-form">
-                <div className="cd-field">
-                  <label>Vegetable</label>
-                  <select value={commodity} onChange={e => setCommodity(e.target.value)}>
-                    <option value="">Select vegetable…</option>
-                    {VEGETABLE_OPTIONS.map(v => <option key={v.value} value={v.value}>{v.label}</option>)}
-                  </select>
-                </div>
-                <div className="cd-field">
-                  <label>Market / APMC</label>
-                  <select value={market} onChange={e => setMarket(e.target.value)}>
-                    <option value="">Select market…</option>
-                    {MARKET_OPTIONS.map(m => <option key={m.value} value={m.value}>{m.label}</option>)}
-                  </select>
-                </div>
-                <button className="cd-search-btn" onClick={handleSearch} disabled={loading || !commodity || !market}>
-                  <Search size={16}/>
-                  {loading ? "Forecasting…" : "Get Forecast"}
-                </button>
-              </div>
-            </div>
-
-            <div className="cd-content">
-              {loading && (
-                <div style={{display:"flex",flexDirection:"column",gap:16}}>
-                  <div className="cd-skeleton" style={{height:76}}/>
-                  <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:12}}>
-                    {[1,2,3].map(i=><div key={i} className="cd-skeleton" style={{height:100}}/>)}
-                  </div>
-                  <div className="cd-skeleton" style={{height:300}}/>
-                </div>
-              )}
-
-              {error && !loading && (
-                <div className="cd-error"><AlertCircle size={20}/> {error}</div>
-              )}
-
-              {forecastData && !loading && (
-                <>
-                  {showEarlyTip ? (
-                    <div className="cd-tip">
-                      <ShoppingCart size={20} color="#4ade80" style={{flexShrink:0,marginTop:1}}/>
-                      <div>
-                        <div className="cd-tip-title">💡 Consumer Tip — Best Buy Window!</div>
-                        <div className="cd-tip-text">
-                          Prices are expected to be lowest on <strong>{bestBuy.date}</strong> at ₹{bestBuy.price?.toFixed(2)}/q. Consider buying then to save money!
+                            <div className="cd-search-form">
+                                <div className="cd-field">
+                                    <label>Vegetable</label>
+                                    <select value={commodity} onChange={e => setCommodity(e.target.value)}>
+                                        <option value="">Select vegetable…</option>
+                                        {VEGETABLE_OPTIONS.map(v => <option key={v.value} value={v.value}>{v.label}</option>)}
+                                    </select>
+                                </div>
+                                <div className="cd-field">
+                                    <label>Market / APMC</label>
+                                    <select value={market} onChange={e => setMarket(e.target.value)}>
+                                        <option value="">Select market…</option>
+                                        {MARKET_OPTIONS.map(m => <option key={m.value} value={m.value}>{m.label}</option>)}
+                                    </select>
+                                </div>
+                                <button className="cd-search-btn" onClick={handleSearch} disabled={loading || !commodity || !market}>
+                                    <Search size={16} />
+                                    {loading ? "Forecasting…" : "Get Forecast"}
+                                </button>
+                            </div>
                         </div>
-                      </div>
-                    </div>
-                  ) : bestBuy && (
-                    <div className="cd-tip warning">
-                      <CalendarDays size={20} color="#fbbf24" style={{flexShrink:0,marginTop:1}}/>
-                      <div>
-                        <div className="cd-tip-title">📅 Best Price Later This Week</div>
-                        <div className="cd-tip-text">
-                          Lowest price is forecast on <strong>{bestBuy.date}</strong> (₹{bestBuy.price?.toFixed(2)}/q). Waiting could save you money.
+
+                        <div className="cd-content">
+                            {loading && (
+                                <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                                    <div className="cd-skeleton" style={{ height: 76 }} />
+                                    <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 12 }}>
+                                        {[1, 2, 3].map(i => <div key={i} className="cd-skeleton" style={{ height: 100 }} />)}
+                                    </div>
+                                    <div className="cd-skeleton" style={{ height: 300 }} />
+                                </div>
+                            )}
+
+                            {error && !loading && <div className="cd-error"><AlertCircle size={20} /> {error}</div>}
+
+                            {forecastData && !loading && (
+                                <>
+                                    {/* Dynamic Tip powered by the new Backend Consumer Insight */}
+                                    {showWaitTip ? (
+                                        <div className="cd-tip">
+                                            <ShoppingCart size={20} color="#4ade80" style={{ flexShrink: 0, marginTop: 1 }} />
+                                            <div>
+                                                <div className="cd-tip-title">💡 Consumer Tip — Prices Dropping!</div>
+                                                <div className="cd-tip-text">{cInsight?.message} You could save {cInsight?.savings_percent}% by waiting.</div>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="cd-tip warning">
+                                            <CalendarDays size={20} color="#fbbf24" style={{ flexShrink: 0, marginTop: 1 }} />
+                                            <div>
+                                                <div className="cd-tip-title">📅 Buy Today</div>
+                                                <div className="cd-tip-text">{cInsight?.message} Local shop rates are roughly ₹{forecastData.current_retail_price}/kg.</div>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    <div className="cd-stats">
+                                        <div className="cd-stat">
+                                            <div className="cd-stat-label"><BadgeIndianRupee size={13} /> Est. Local Shop Rate</div>
+                                            <div className="cd-stat-value">₹{forecastData.current_retail_price?.toFixed(0)}<small>/kg</small></div>
+                                            <div className="cd-stat-sub" style={{ color: "var(--text-mid)" }}>Based on {forecastData.retail_markup_percent}% markup</div>
+                                        </div>
+                                        <div className="cd-stat">
+                                            <div className="cd-stat-label"><Database size={13} /> Actual Mandi Rate</div>
+                                            <div className="cd-stat-value" style={{ color: "#4ade80" }}>₹{forecastData.current_mandi_price?.toFixed(0)}<small>/q</small></div>
+                                            <div className="cd-stat-sub down">{forecastData.market}</div>
+                                        </div>
+                                        <div className="cd-stat">
+                                            <div className="cd-stat-label">
+                                                {mood === "bullish" ? <TrendingUp size={13} /> : mood === "bearish" ? <TrendingDown size={13} /> : <Minus size={13} />}
+                                                Market Mood
+                                            </div>
+                                            <div style={{ marginTop: 8 }}>
+                                                <div className={"cd-mood " + mood}>{moodLabel[mood]}</div>
+                                            </div>
+                                            <div className="cd-stat-sub" style={{ marginTop: 10 }}>{trendDir === "up" ? "Expect retail prices to rise." : "Expect retail prices to stabilize."}</div>
+                                        </div>
+                                    </div>
+
+                                    <div className="cd-chart-card">
+                                        <div className="cd-chart-header">
+                                            <div>
+                                                <div className="cd-chart-title">7-Day Retail Price Forecast — {forecastData.commodity || commodity}</div>
+                                                <div className="cd-chart-sub">Prices in ₹/kg (Local Shop Estimate)</div>
+                                            </div>
+                                            {bestBuy && <div className="cd-bestbuy"><CalendarDays size={13} /> Best buy: {bestBuy.date}</div>}
+                                        </div>
+                                        <div style={{ height: 240 }}>
+                                            {/* Passing the retail chartData formatted for the wrapper */}
+                                            <PriceTrendChart data={chartData} bestBuyDate={bestBuy?.date} />
+                                        </div>
+                                    </div>
+
+                                    <div className="cd-chart-card" style={{ marginBottom: 24 }}>
+                                        <div style={{ marginBottom: 16, fontSize: 14, fontWeight: 700, color: "var(--text-hi)" }}>Daily Retail Breakdown</div>
+                                        <div style={{ overflowX: "auto" }}>
+                                            <table className="cd-table">
+                                                <thead>
+                                                    <tr><th>Date</th><th>Est. Local Shop (₹/kg)</th><th>Mandi Base (₹/q)</th><th>Tip</th></tr>
+                                                </thead>
+                                                <tbody>
+                                                    {forecastData.forecast?.map((row, i) => {
+                                                        const isBest = row.date === bestBuy?.date;
+                                                        const delta = ((row.retail_price_kg - forecastData.current_retail_price) / forecastData.current_retail_price * 100);
+                                                        return (
+                                                            <tr key={i} className={isBest ? "is-best" : ""}>
+                                                                <td>{row.date}{isBest && <span style={{ marginLeft: 6, fontSize: 11, color: "#4ade80", fontWeight: 700 }}>← cheapest</span>}</td>
+                                                                <td className={"cd-price-cell " + (isBest ? "best" : "")}>₹{row.retail_price_kg?.toFixed(1)}</td>
+                                                                <td style={{ color: "var(--text-dim)", fontFamily: "monospace" }}>₹{row.mandi_price_q?.toFixed(0)}</td>
+                                                                <td style={{ fontSize: 12 }}>
+                                                                    {delta <= -2 ? "✅ Good to buy" : delta >= 2 ? "⚠️ Prices rising" : "→ Steady"}
+                                                                </td>
+                                                            </tr>
+                                                        );
+                                                    })}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+
+                                    <div className="cd-meta">
+                                        <div className="cd-meta-item"><div className="cd-meta-dot" /> Source: <span>{forecastData.data_source || "—"}</span></div>
+                                        <div className="cd-meta-item"><Clock size={12} /> Generated: <span>{forecastData.generated_at ? new Date(forecastData.generated_at).toLocaleString("en-IN") : "—"}</span></div>
+                                        <div className="cd-meta-item"><Database size={12} /> Model: <span>Prophet AI + Retail Logic</span></div>
+                                    </div>
+                                </>
+                            )}
+
+                            {!forecastData && !loading && !error && (
+                                <div className="cd-empty">
+                                    <div className="cd-empty-icon">🥦</div>
+                                    <h3>Search for a vegetable to begin</h3>
+                                    <p>Select a vegetable to see estimated local shop prices and find the cheapest day to buy.</p>
+                                </div>
+                            )}
                         </div>
-                      </div>
-                    </div>
-                  )}
+                    </>
+                )}
 
-                  <div className="cd-stats">
-                    <div className="cd-stat">
-                      <div className="cd-stat-label"><BadgeIndianRupee size={13}/> Price Today</div>
-                      <div className="cd-stat-value">₹{forecastData.current_price?.toFixed(0)}<small>/q</small></div>
-                      <div className={"cd-stat-sub "+trendDir}>
-                        {trendDir==="up"&&"↑ Rising trend"}
-                        {trendDir==="down"&&"↓ Falling trend"}
-                        {trendDir==="flat"&&"→ Stable trend"}
-                      </div>
-                    </div>
-                    <div className="cd-stat">
-                      <div className="cd-stat-label"><TrendingDown size={13}/> Lowest Forecast</div>
-                      <div className="cd-stat-value" style={{color:"#4ade80"}}>₹{bestBuy?.price?.toFixed(0)}<small>/q</small></div>
-                      <div className="cd-stat-sub down">on {bestBuy?.date}</div>
-                    </div>
-                    <div className="cd-stat">
-                      <div className="cd-stat-label">
-                        {mood==="bullish"?<TrendingUp size={13}/>:mood==="bearish"?<TrendingDown size={13}/>:<Minus size={13}/>}
-                        Market Mood
-                      </div>
-                      <div style={{marginTop:8}}>
-                        <div className={"cd-mood "+mood}>{moodLabel[mood]}</div>
-                      </div>
-                      <div className="cd-stat-sub" style={{marginTop:10}}>{forecastData.recommendation||"—"}</div>
-                    </div>
-                  </div>
+                {activeTab === "insights" && <InsightsPanel />}
 
-                  <div className="cd-chart-card">
-                    <div className="cd-chart-header">
-                      <div>
-                        <div className="cd-chart-title">7-Day Price Forecast — {forecastData.commodity||commodity}</div>
-                        <div className="cd-chart-sub">{forecastData.market||market} · prices in ₹/quintal</div>
-                      </div>
-                      {bestBuy && <div className="cd-bestbuy"><CalendarDays size={13}/> Best buy: {bestBuy.date}</div>}
-                    </div>
-                    <div style={{height:240}}>
-                      <PriceTrendChart data={forecastData.forecast} bestBuyDate={bestBuy?.date}/>
-                    </div>
-                  </div>
-
-                  <div className="cd-chart-card" style={{marginBottom:24}}>
-                    <div style={{marginBottom:16,fontSize:14,fontWeight:700,color:"var(--text-hi)"}}>Daily Breakdown</div>
-                    <div style={{overflowX:"auto"}}>
-                      <table className="cd-table">
-                        <thead>
-                          <tr><th>Date</th><th>Forecast Price</th><th>vs Today</th><th>Tip</th></tr>
-                        </thead>
-                        <tbody>
-                          {forecastData.forecast?.map((row, i) => {
-                            const isBest = row.date === bestBuy?.date;
-                            const delta  = ((row.price - forecastData.current_price) / forecastData.current_price * 100);
-                            return (
-                              <tr key={i} className={isBest?"is-best":""}>
-                                <td>{row.date}{isBest&&<span style={{marginLeft:6,fontSize:11,color:"#4ade80",fontWeight:700}}>← best</span>}</td>
-                                <td className={"cd-price-cell "+(isBest?"best":"")}>₹{row.price?.toFixed(2)}</td>
-                                <td style={{color:delta>0?"#f87171":delta<0?"#4ade80":"#fbbf24",fontFamily:"monospace",fontSize:12}}>
-                                  {delta>0?"+":""}{delta.toFixed(1)}%
-                                </td>
-                                <td style={{fontSize:12}}>
-                                  {delta<=-2?"✅ Good to buy":delta>=2?"⚠️ Prices rising":"→ Steady"}
-                                </td>
-                              </tr>
-                            );
-                          })}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-
-                  <div className="cd-meta">
-                    <div className="cd-meta-item"><div className="cd-meta-dot"/> Source: <span>{forecastData.data_source||"—"}</span></div>
-                    <div className="cd-meta-item"><Clock size={12}/> Generated: <span>{forecastData.generated_at?new Date(forecastData.generated_at).toLocaleString("en-IN"):"—"}</span></div>
-                    <div className="cd-meta-item"><Database size={12}/> Model: <span>Prophet AI Forecast</span></div>
-                  </div>
-                </>
-              )}
-
-              {!forecastData && !loading && !error && (
-                <div className="cd-empty">
-                  <div className="cd-empty-icon">🥦</div>
-                  <h3>Search for a vegetable to begin</h3>
-                  <p>Select a vegetable and APMC market above to get a 7-day AI-powered price forecast.</p>
-                </div>
-              )}
             </div>
-          </>
-        )}
-
-        {/* ── INSIGHTS TAB (NEW) ────────────────────────────────────────────── */}
-        {activeTab === "insights" && <InsightsPanel/>}
-
-      </div>
-    </>
-  );
+        </>
+    );
 };
 
 export default CustomerDashboard;

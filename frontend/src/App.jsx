@@ -1,24 +1,53 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import LandingPage from "./LandingPage";
 import FarmerOnboarding from "./pages/FarmerOnboarding";
 import FarmerDashboard from "./pages/FarmerDashboard";
-import CustomerDashboard from "./pages/CustomerDashboard"; // Assuming teammate uses this name
+import CustomerDashboard from "./pages/CustomerDashboard";
 
 export default function App() {
-    // Current View State: "landing" | "farmer" | "customer"
     const [view, setView] = useState("landing");
-
-    // Farmer Onboarding State: Stores {crop, district, unit}
     const [farmerPrefs, setFarmerPrefs] = useState(null);
+
+    // ── INTERCEPT BROWSER BACK BUTTON ────────────────────────────────────
+    useEffect(() => {
+        const handleHashChange = () => {
+            // Read the current URL hash (e.g., "#farmer" becomes "farmer")
+            const hash = window.location.hash.replace("#", "");
+
+            if (hash === "farmer") {
+                setView("farmer");
+            } else if (hash === "customer") {
+                setView("customer");
+            } else {
+                // If there's no hash, or they went back to the start
+                setView("landing");
+                setFarmerPrefs(null); // Reset farmer prefs automatically
+            }
+        };
+
+        // Run once on load to catch if someone refreshes the page
+        handleHashChange();
+
+        // Listen for the physical browser Back/Forward buttons
+        window.addEventListener("hashchange", handleHashChange);
+
+        // Cleanup listener on unmount
+        return () => window.removeEventListener("hashchange", handleHashChange);
+    }, []);
+
+    // Custom navigation function to change the URL hash
+    const navigateTo = (newView) => {
+        window.location.hash = newView;
+    };
 
     // ── 1. Landing Page ──────────────────────────────────────────────────
     if (view === "landing") {
-        return <LandingPage onEnter={(mode) => setView(mode)} />;
+        // Use navigateTo instead of setView directly
+        return <LandingPage onEnter={(mode) => navigateTo(mode)} />;
     }
 
     // ── 2. Farmer Flow ───────────────────────────────────────────────────
     if (view === "farmer") {
-        // If they haven't filled onboarding, show the modal first
         if (!farmerPrefs) {
             return (
                 <FarmerOnboarding
@@ -27,14 +56,10 @@ export default function App() {
             );
         }
 
-        // Once data is ready, show the Dashboard
         return (
             <FarmerDashboard
                 userPrefs={farmerPrefs}
-                onBack={() => {
-                    setView("landing");
-                    setFarmerPrefs(null); // Reset prefs if they go back
-                }}
+                onBack={() => navigateTo("landing")}
             />
         );
     }
@@ -43,7 +68,7 @@ export default function App() {
     if (view === "customer") {
         return (
             <CustomerDashboard
-                onBack={() => setView("landing")}
+                onBack={() => navigateTo("landing")}
             />
         );
     }
