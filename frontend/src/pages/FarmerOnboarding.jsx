@@ -1,145 +1,140 @@
-import { useState } from "react";
-import "@fontsource/poppins/400.css";
-import "@fontsource/poppins/600.css";
-import "@fontsource/poppins/700.css";
-import { CROPS, DISTRICTS } from "../utils/marketData";
+import React, { useState, useEffect } from "react";
+import { Leaf, MapPin, Scale, ArrowRight, Store } from "lucide-react";
+import "@fontsource/sora/400.css";
+import "@fontsource/sora/600.css";
+import "@fontsource/sora/700.css";
+import "@fontsource/jetbrains-mono/500.css";
+// Importing your existing map so the Mandi dropdown works automatically!
+import { DISTRICT_MARKET_MAP } from "../utils/marketData";
 
-const S = {
-    overlay: {
-        position: "fixed", inset: 0, zIndex: 50,
-        display: "flex", alignItems: "center", justifyContent: "center",
-        background: "rgba(26,58,42,0.92)", backdropFilter: "blur(8px)", padding: 24,
-    },
-    card: {
-        background: "#fff", width: "100%", maxWidth: 460,
-        borderRadius: 28, overflow: "hidden",
-        fontFamily: "'Poppins', sans-serif",
-        boxShadow: "0 32px 80px rgba(0,0,0,0.35)",
-    },
-    header: {
-        background: "linear-gradient(135deg, #1a3a2a 0%, #2d6a4f 100%)",
-        padding: "40px 40px 32px",
-        position: "relative", overflow: "hidden",
-    },
-    headerBg: {
-        position: "absolute", top: -40, right: -40,
-        width: 160, height: 160,
-        background: "rgba(82,183,136,0.12)",
-        borderRadius: "50%",
-    },
-    headerBg2: {
-        position: "absolute", bottom: -20, left: -20,
-        width: 100, height: 100,
-        background: "rgba(233,196,106,0.08)",
-        borderRadius: "50%",
-    },
-    iconWrap: {
-        width: 64, height: 64, borderRadius: 18,
-        background: "rgba(82,183,136,0.2)",
-        border: "1px solid rgba(82,183,136,0.3)",
-        display: "flex", alignItems: "center", justifyContent: "center",
-        fontSize: 30, marginBottom: 16, position: "relative", zIndex: 1,
-    },
-    headerTitle: {
-        fontSize: 26, fontWeight: 700, color: "#fff",
-        margin: "0 0 6px", letterSpacing: -0.5, position: "relative", zIndex: 1,
-    },
-    headerSub: {
-        fontSize: 13, color: "rgba(255,255,255,0.55)",
-        margin: 0, position: "relative", zIndex: 1, fontWeight: 400,
-    },
-    steps: {
-        display: "flex", gap: 6, marginTop: 24, position: "relative", zIndex: 1,
-    },
-    stepDot: (active) => ({
-        height: 3, borderRadius: 10, transition: "all 0.3s",
-        background: active ? "#52b788" : "rgba(255,255,255,0.2)",
-        flex: active ? 2 : 1,
-    }),
-    body: { padding: "32px 40px 40px" },
-    label: {
-        display: "flex", alignItems: "center", gap: 8,
-        fontSize: 12, fontWeight: 600, color: "#555",
-        letterSpacing: 0.8, textTransform: "uppercase",
-        marginBottom: 10,
-    },
-    labelIcon: { fontSize: 14 },
-    selectWrap: { position: "relative", marginBottom: 24 },
-    select: {
-        width: "100%", padding: "14px 44px 14px 16px",
-        border: "2px solid #eee", borderRadius: 14,
-        fontSize: 15, fontWeight: 500, color: "#1c1c1e",
-        fontFamily: "'Poppins', sans-serif",
-        background: "#fafafa", outline: "none",
-        appearance: "none", cursor: "pointer",
-        transition: "border-color 0.2s, box-shadow 0.2s",
-    },
-    selectArrow: {
-        position: "absolute", right: 16, top: "50%",
-        transform: "translateY(-50%)",
-        color: "#aaa", fontSize: 12, pointerEvents: "none",
-    },
-    unitSection: {
-        background: "#f8f8f8", borderRadius: 16,
-        padding: "16px 20px",
-        display: "flex", alignItems: "center", justifyContent: "space-between",
-        marginBottom: 28, border: "1px solid #f0f0f0",
-    },
-    unitLabel: { fontSize: 13, fontWeight: 600, color: "#444" },
-    unitSub: { fontSize: 11, color: "#aaa", marginTop: 2 },
-    unitToggle: {
-        display: "flex", background: "#e8e8e8",
-        borderRadius: 10, padding: 3, gap: 2,
-    },
-    unitBtn: (active) => ({
-        padding: "6px 18px", borderRadius: 8,
-        fontSize: 12, fontWeight: 700,
-        border: "none", cursor: "pointer",
-        fontFamily: "'Poppins', sans-serif",
-        transition: "all 0.2s",
-        background: active ? "#fff" : "transparent",
-        color: active ? "#1a3a2a" : "#888",
-        boxShadow: active ? "0 2px 8px rgba(0,0,0,0.1)" : "none",
-    }),
-    submitBtn: {
-        width: "100%", padding: "16px",
-        background: "linear-gradient(135deg, #2d6a4f, #1a3a2a)",
-        color: "#fff", border: "none", borderRadius: 16,
-        fontSize: 15, fontWeight: 700,
-        fontFamily: "'Poppins', sans-serif",
-        cursor: "pointer", display: "flex",
-        alignItems: "center", justifyContent: "center", gap: 10,
-        transition: "all 0.25s",
-        boxShadow: "0 8px 24px rgba(26,58,42,0.35)",
-        letterSpacing: 0.3,
-    },
-    cropGrid: {
-        display: "grid", gridTemplateColumns: "repeat(4, 1fr)",
-        gap: 8, marginBottom: 24,
-    },
-    cropBtn: (active) => ({
-        padding: "10px 4px", borderRadius: 12,
-        border: active ? "2px solid #52b788" : "2px solid #eee",
-        background: active ? "rgba(82,183,136,0.08)" : "#fafafa",
-        cursor: "pointer", textAlign: "center",
-        fontFamily: "'Poppins', sans-serif",
-        transition: "all 0.2s",
-    }),
-    cropEmoji: { fontSize: 20, display: "block", marginBottom: 4 },
-    cropName: (active) => ({
-        fontSize: 11, fontWeight: 600,
-        color: active ? "#2d6a4f" : "#888",
-    }),
-};
+// ── EXPANDED CROP DATABASE (30+ Crops) ──────────────────────────────────────
+const EXPANDED_CROPS = [
+    { name: "Onion", emoji: "🧅" }, { name: "Tomato", emoji: "🍅" }, { name: "Potato", emoji: "🥔" },
+    { name: "Garlic", emoji: "🧄" }, { name: "Cabbage", emoji: "🥬" }, { name: "Cauliflower", emoji: "🥦" },
+    { name: "Carrot", emoji: "🥕" }, { name: "Brinjal", emoji: "🍆" }, { name: "Green Chilli", emoji: "🌶️" },
+    { name: "Capsicum", emoji: "🫑" }, { name: "Wheat", emoji: "🌾" }, { name: "Maize", emoji: "🌽" },
+    { name: "Soybean", emoji: "🫘" }, { name: "Cotton", emoji: "☁️" }, { name: "Ginger", emoji: "🫚" },
+    { name: "Turmeric", emoji: "🏵️" }, { name: "Apple", emoji: "🍎" }, { name: "Banana", emoji: "🍌" },
+    { name: "Grapes", emoji: "🍇" }, { name: "Mango", emoji: "🥭" }, { name: "Orange", emoji: "🍊" },
+    { name: "Papaya", emoji: "🍈" }, { name: "Pomegranate", emoji: "🍎" }, { name: "Spinach", emoji: "🥬" },
+    { name: "Fenugreek", emoji: "🌿" }, { name: "Coriander", emoji: "🌿" }, { name: "Cucumber", emoji: "🥒" },
+    { name: "Pumpkin", emoji: "🎃" }, { name: "Radish", emoji: "🥕" }, { name: "Sweet Potato", emoji: "🍠" },
+    { name: "Bitter Gourd", emoji: "🥒" }, { name: "Bottle Gourd", emoji: "🍐" }
+];
 
-const CROP_EMOJIS = {
-    Onion: "🧅", Tomato: "🍅", Potato: "🥔", Garlic: "🧄",
-    Wheat: "🌾", Maize: "🌽", Capsicum: "🫑", Brinjal: "🍆",
-};
+const css = `
+  .fo-overlay {
+    position: fixed; inset: 0; z-index: 50;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(6, 14, 10, 0.95); backdrop-filter: blur(12px);
+    padding: 24px; font-family: 'Sora', sans-serif; color: #f0fdf4;
+  }
+  .fo-card {
+    background: #0d1a12; width: 100%; max-width: 520px;
+    border-radius: 28px; border: 1px solid rgba(74,222,128,0.15);
+    box-shadow: 0 32px 80px rgba(0,0,0,0.6); overflow: hidden;
+    display: flex; flex-direction: column; max-height: 90vh;
+  }
+  .fo-header {
+    background: linear-gradient(135deg, #0d1a12 0%, #132018 100%);
+    padding: 32px 40px 24px; border-bottom: 1px solid rgba(74,222,128,0.1);
+    position: relative; overflow: hidden; flex-shrink: 0;
+  }
+  .fo-header-glow {
+    position: absolute; top: -50px; right: -50px; width: 150px; height: 150px;
+    background: rgba(74,222,128,0.15); filter: blur(40px); border-radius: 50%;
+  }
+  .fo-title { font-size: 24px; font-weight: 700; color: #fff; margin-bottom: 6px; letter-spacing: -0.5px; }
+  .fo-sub { font-size: 13px; color: rgba(240,253,244,0.6); font-weight: 400; line-height: 1.5; }
+  
+  .fo-body { padding: 32px 40px 40px; overflow-y: auto; }
+  .fo-body::-webkit-scrollbar { width: 6px; }
+  .fo-body::-webkit-scrollbar-thumb { background: rgba(74,222,128,0.2); border-radius: 10px; }
+  
+  .fo-label {
+    display: flex; align-items: center; gap: 8px; font-size: 11px;
+    font-weight: 700; color: #4ade80; text-transform: uppercase;
+    letter-spacing: 1px; margin-bottom: 12px;
+  }
+  
+  /* Scrollable Crop Grid */
+  .fo-crop-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
+    max-height: 180px; overflow-y: auto; padding-right: 8px; margin-bottom: 32px;
+  }
+  .fo-crop-grid::-webkit-scrollbar { width: 4px; }
+  .fo-crop-grid::-webkit-scrollbar-thumb { background: rgba(74,222,128,0.2); border-radius: 10px; }
+  
+  .fo-crop-btn {
+    background: #132018; border: 1px solid rgba(74,222,128,0.1);
+    border-radius: 14px; padding: 12px 4px; cursor: pointer;
+    transition: all 0.2s; display: flex; flex-direction: column; align-items: center;
+    color: rgba(240,253,244,0.5); font-family: 'Sora', sans-serif;
+  }
+  .fo-crop-btn:hover { background: rgba(74,222,128,0.05); border-color: rgba(74,222,128,0.3); color: #fff; }
+  .fo-crop-btn.active {
+    background: rgba(74,222,128,0.15); border-color: #4ade80;
+    color: #4ade80; box-shadow: 0 4px 16px rgba(74,222,128,0.15);
+  }
+  .fo-crop-emoji { font-size: 24px; margin-bottom: 6px; }
+  .fo-crop-name { font-size: 10px; font-weight: 600; text-align: center; }
+
+  /* Dropdowns */
+  .fo-select-group { display: flex; gap: 16px; margin-bottom: 32px; }
+  .fo-select-wrap { flex: 1; position: relative; }
+  .fo-select {
+    width: 100%; padding: 14px 16px; background: #132018;
+    border: 1px solid rgba(74,222,128,0.2); border-radius: 14px;
+    color: #fff; font-family: 'Sora', sans-serif; font-size: 13px; font-weight: 500;
+    appearance: none; cursor: pointer; transition: all 0.2s; outline: none;
+  }
+  .fo-select:focus { border-color: #4ade80; box-shadow: 0 0 0 3px rgba(74,222,128,0.1); }
+  .fo-select option { background: #0d1a12; color: #fff; }
+  .fo-select:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* Unit Toggle */
+  .fo-unit-box {
+    background: #132018; border: 1px solid rgba(74,222,128,0.1);
+    border-radius: 16px; padding: 16px 20px; display: flex;
+    align-items: center; justify-content: space-between; margin-bottom: 32px;
+  }
+  .fo-unit-text h4 { font-size: 13px; font-weight: 600; color: #fff; margin-bottom: 2px; }
+  .fo-unit-text p { font-size: 11px; color: rgba(240,253,244,0.5); }
+  .fo-unit-toggle { display: flex; background: #060e0a; border-radius: 10px; padding: 4px; }
+  .fo-unit-btn {
+    padding: 6px 16px; border-radius: 8px; border: none; font-size: 12px; font-weight: 600;
+    cursor: pointer; transition: all 0.2s; font-family: 'Sora', sans-serif;
+  }
+  .fo-unit-btn.active { background: #4ade80; color: #060e0a; }
+  .fo-unit-btn:not(.active) { background: transparent; color: rgba(240,253,244,0.5); }
+
+  /* Submit */
+  .fo-submit {
+    width: 100%; padding: 16px; background: #22c55e; color: #060e0a;
+    border: none; border-radius: 14px; font-size: 14px; font-weight: 700;
+    font-family: 'Sora', sans-serif; cursor: pointer; transition: all 0.2s;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    box-shadow: 0 4px 20px rgba(34,197,94,0.3);
+  }
+  .fo-submit:hover:not(:disabled) { background: #4ade80; transform: translateY(-2px); box-shadow: 0 6px 24px rgba(34,197,94,0.4); }
+  .fo-submit:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
+`;
 
 export default function FarmerOnboarding({ onComplete }) {
-    const [form, setForm] = useState({ crop: "Onion", district: "Pune", unit: "kg" });
-    const [hoverBtn, setHoverBtn] = useState(false);
+    const districtsList = Object.keys(DISTRICT_MARKET_MAP || {});
+
+    const [form, setForm] = useState({
+        crop: "Onion",
+        district: districtsList[0] || "Pune",
+        market: "", // The specific APMC mandi
+        unit: "quintal" // Defaulting to quintal for farmers
+    });
+
+    // When district changes, reset the market dropdown
+    useEffect(() => {
+        const availableMarkets = DISTRICT_MARKET_MAP[form.district] || [];
+        setForm(prev => ({ ...prev, market: availableMarkets[0] || "" }));
+    }, [form.district]);
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -147,92 +142,92 @@ export default function FarmerOnboarding({ onComplete }) {
     };
 
     return (
-        <div style={S.overlay}>
-            <div style={S.card}>
+        <>
+            <style>{css}</style>
+            <div className="fo-overlay">
+                <div className="fo-card">
 
-                {/* ── Header ── */}
-                <div style={S.header}>
-                    <div style={S.headerBg} />
-                    <div style={S.headerBg2} />
-                    <div style={S.iconWrap}>🌾</div>
-                    <h2 style={S.headerTitle}>Farmer Setup</h2>
-                    <p style={S.headerSub}>Personalize your mandi intelligence dashboard</p>
-                    <div style={S.steps}>
-                        <div style={S.stepDot(true)} />
-                        <div style={S.stepDot(true)} />
-                        <div style={S.stepDot(false)} />
-                    </div>
-                </div>
-
-                {/* ── Body ── */}
-                <form onSubmit={handleSubmit} style={S.body}>
-
-                    {/* Crop Grid */}
-                    <div style={S.label}>
-                        <span style={S.labelIcon}>🌱</span> What do you grow?
-                    </div>
-                    <div style={S.cropGrid}>
-                        {CROPS.map(c => (
-                            <button
-                                key={c} type="button"
-                                style={S.cropBtn(form.crop === c)}
-                                onClick={() => setForm({ ...form, crop: c })}
-                            >
-                                <span style={S.cropEmoji}>{CROP_EMOJIS[c]}</span>
-                                <span style={S.cropName(form.crop === c)}>{c}</span>
-                            </button>
-                        ))}
-                    </div>
-
-                    {/* District Select */}
-                    <div style={S.label}>
-                        <span style={S.labelIcon}>📍</span> Your District
-                    </div>
-                    <div style={S.selectWrap}>
-                        <select
-                            style={S.select}
-                            value={form.district}
-                            onChange={e => setForm({ ...form, district: e.target.value })}
-                            onFocus={e => { e.target.style.borderColor = "#52b788"; e.target.style.boxShadow = "0 0 0 3px rgba(82,183,136,0.15)"; }}
-                            onBlur={e => { e.target.style.borderColor = "#eee"; e.target.style.boxShadow = "none"; }}
-                        >
-                            {DISTRICTS.map(d => <option key={d} value={d}>{d}</option>)}
-                        </select>
-                        <span style={S.selectArrow}>▼</span>
-                    </div>
-
-                    {/* Unit Toggle */}
-                    <div style={S.unitSection}>
-                        <div>
-                            <div style={S.unitLabel}>Preferred Price Unit</div>
-                            <div style={S.unitSub}>How you want to see prices</div>
+                    {/* ── Header ── */}
+                    <div className="fo-header">
+                        <div className="fo-header-glow" />
+                        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
+                            <div style={{ padding: 8, background: "rgba(74,222,128,0.15)", borderRadius: 12, color: "#4ade80" }}>
+                                <Leaf size={24} />
+                            </div>
+                            <h2 className="fo-title">Farmer Setup</h2>
                         </div>
-                        <div style={S.unitToggle}>
-                            {["kg", "quintal"].map(u => (
-                                <button
-                                    key={u} type="button"
-                                    style={S.unitBtn(form.unit === u)}
-                                    onClick={() => setForm({ ...form, unit: u })}
+                        <p className="fo-sub">Configure your dashboard to track local mandi prices and AI profit forecasts.</p>
+                    </div>
+
+                    {/* ── Body ── */}
+                    <form onSubmit={handleSubmit} className="fo-body">
+
+                        {/* 1. Crop Selection (Scrollable Grid) */}
+                        <div className="fo-label"><Leaf size={14} /> 1. Select Your Crop</div>
+                        <div className="fo-crop-grid">
+                            {EXPANDED_CROPS.map(c => (
+                                <div
+                                    key={c.name}
+                                    className={`fo-crop-btn ${form.crop === c.name ? "active" : ""}`}
+                                    onClick={() => setForm({ ...form, crop: c.name })}
                                 >
-                                    {u === "kg" ? "₹/kg" : "₹/q"}
-                                </button>
+                                    <span className="fo-crop-emoji">{c.emoji}</span>
+                                    <span className="fo-crop-name">{c.name}</span>
+                                </div>
                             ))}
                         </div>
-                    </div>
 
-                    {/* Submit */}
-                    <button
-                        type="submit"
-                        style={{ ...S.submitBtn, ...(hoverBtn ? { transform: "translateY(-2px)", boxShadow: "0 12px 32px rgba(26,58,42,0.45)" } : {}) }}
-                        onMouseEnter={() => setHoverBtn(true)}
-                        onMouseLeave={() => setHoverBtn(false)}
-                    >
-                        <span>Get Market Insights</span>
-                        <span style={{ fontSize: 18 }}>→</span>
-                    </button>
+                        {/* 2. District & APMC Cascading Dropdowns */}
+                        <div className="fo-select-group">
+                            <div className="fo-select-wrap">
+                                <div className="fo-label"><MapPin size={14} /> 2. District</div>
+                                <select
+                                    className="fo-select"
+                                    value={form.district}
+                                    onChange={e => setForm({ ...form, district: e.target.value })}
+                                >
+                                    {districtsList.map(d => <option key={d} value={d}>{d}</option>)}
+                                </select>
+                            </div>
+                            <div className="fo-select-wrap">
+                                <div className="fo-label"><Store size={14} /> 3. APMC Mandi</div>
+                                <select
+                                    className="fo-select"
+                                    value={form.market}
+                                    onChange={e => setForm({ ...form, market: e.target.value })}
+                                    disabled={!form.district}
+                                >
+                                    {DISTRICT_MARKET_MAP[form.district]?.map(m => (
+                                        <option key={m} value={m}>{m}</option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
 
-                </form>
+                        {/* 3. Unit Toggle */}
+                        <div className="fo-unit-box">
+                            <div className="fo-unit-text">
+                                <h4><Scale size={14} style={{ display: "inline", marginRight: 6, color: "#4ade80" }} />Price Unit</h4>
+                                <p>How do you sell your harvest?</p>
+                            </div>
+                            <div className="fo-unit-toggle">
+                                <button type="button" className={`fo-unit-btn ${form.unit === "quintal" ? "active" : ""}`} onClick={() => setForm({ ...form, unit: "quintal" })}>Quintal</button>
+                                <button type="button" className={`fo-unit-btn ${form.unit === "kg" ? "active" : ""}`} onClick={() => setForm({ ...form, unit: "kg" })}>KG</button>
+                            </div>
+                        </div>
+
+                        {/* Submit */}
+                        <button
+                            type="submit"
+                            className="fo-submit"
+                            disabled={!form.crop || !form.district || !form.market}
+                        >
+                            Generate Dashboard <ArrowRight size={16} />
+                        </button>
+
+                    </form>
+                </div>
             </div>
-        </div>
+        </>
     );
 }
