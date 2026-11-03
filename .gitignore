@@ -1,35 +1,34 @@
+# ── Secrets ──────────────────────────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+
 # ── Frontend (React/Vite) ────────────────────────────────────────────────────
 node_modules/
 dist/
 dist-ssr/
 *.local
 .eslintcache
+npm-debug.log*
 
 # ── Backend (Flask/Python) ───────────────────────────────────────────────────
 __pycache__/
 *.py[cod]
 *$py.class
+.venv/
+venv/
+env/
 
-
-
-# ── Data & Models (Heavy Files) ──────────────────────────────────────────────
-# We usually ignore .pkl and large .csv to keep the repo light
-# If you want to keep them in the repo, comment these out:
-
-
-# ── IDEs & Editors ──────────────────────────────────────────────────────────
-# Visual Studio
+# ── IDEs & Editors ───────────────────────────────────────────────────────────
+.idea/
+*.iml
+.vscode/
+.history/
 .vs/
-[Bb]in/
-[Oo]bj/
 *.user
 *.suo
 *.sln.docstates
 
-# VS Code
-.vscode/
-.history/
-
-# OS Specific
+# ── OS ───────────────────────────────────────────────────────────────────────
 .DS_Store
 Thumbs.db

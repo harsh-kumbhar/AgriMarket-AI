@@ -18,7 +18,7 @@ import { DISTRICT_MARKET_MAP } from "../utils/marketData";
 
 const font = "'Sora', sans-serif";
 const mono = "'JetBrains Mono', monospace";
-
+const API = import.meta.env.VITE_API_URL || "http://localhost:5000";
 const css = `
   .fd-root { min-height: 100vh; background: #060e0a; color: #f0fdf4; font-family: ${font}; padding-bottom: 64px; }
   .fd-nav { background: rgba(6,14,10,0.85); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(74,222,128,0.1); display: flex; align-items: center; justify-content: space-between; padding: 0 48px; height: 72px; position: sticky; top: 0; z-index: 100; }
@@ -91,12 +91,12 @@ export default function FarmerDashboard({ userPrefs, onBack }) {
     const fetchAll = async () => {
         setLoading(true); setError(null);
         try {
-            const main = await axios.get(`http://localhost:5000/forecast?commodity=${userPrefs.crop}&market=${userPrefs.market}`);
+            const main = await axios.get(`${API}/forecast?commodity=${userPrefs.crop}&market=${userPrefs.market}`);
             setMainData(main.data);
 
             const nearby = (DISTRICT_MARKET_MAP[userPrefs.district] || []).filter(m => m !== userPrefs.market);
             const results = await Promise.allSettled(
-                nearby.map(m => axios.get(`http://localhost:5000/forecast?commodity=${userPrefs.crop}&market=${m}`))
+                nearby.map(m => axios.get(`${API}/forecast?commodity=${userPrefs.crop}&market=${m}`))
             );
             const validNearby = results.filter(r => r.status === "fulfilled" && r.value.data.status === "success").map(r => r.value.data);
             setNearbyData(validNearby);

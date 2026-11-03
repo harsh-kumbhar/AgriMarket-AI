@@ -1,6 +1,7 @@
 import requests
 
-API_KEY = "579b464db66ec23bdd0000015518ca88819046054556373c22ae245d"
+import os
+API_KEY = os.getenv("DATAGOV_API_KEY")
 RESOURCE_ID = "9ef84268-d588-465a-a308-a864a43d0070"
 headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
 
